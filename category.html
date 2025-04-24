@@ -139,24 +139,20 @@
 <p id="message"></p>
 <a id="next-category-link" href="#"></a>
 
- <script>
-// Use sessionStorage instead of localStorage for tracking answered categories
+<script>
 document.addEventListener("DOMContentLoaded", function () {
    function formatMathNotation(text) {
-        // 1. Format exponents (keeps previous improvements)
+        // 1. Format exponents
         text = text.replace(/([a-zA-Z0-9])\^\(([^)]+)\)/g, '$1<sup>$2</sup>');
         text = text.replace(/([a-zA-Z0-9])\^([a-zA-Z0-9]+)/g, '$1<sup>$2</sup>');
         text = text.replace(/([a-zA-Z])(\d+)/g, (_, p1, p2) => p1 + '<sup>' + p2 + '</sup>');
 
-        // 2. Format logarithms in standard mathematical notation
-        // Handles log(base)number
+        // 2. Format logarithms
         text = text.replace(/log\((\d+)\)\(([^)]+)\)/g, 'log<sub>$1</sub>($2)');
-        // Handles log(number) when base isn't specified (default base 10)
         text = text.replace(/log\(([^)]+)\)/g, 'log($1)');
-        // Handles ln(number) for natural log
         text = text.replace(/ln\(([^)]+)\)/g, 'ln($1)');
         
-        // 3. Format fractions (optional improvement)
+        // 3. Format fractions
         text = text.replace(/(\d+)\/(\d+)/g, '<span class="frac">$1/$2</span>');
         
         return text;
@@ -264,17 +260,16 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("category-title").textContent = `Category: ${category.replace("_", " ")}`;
       const container = document.getElementById("quiz-container");
       
-      categoryQuestions.forEach((q, i) => {
+categoryQuestions.forEach((q, i) => {
         const div = document.createElement("div");
         div.classList.add("question");
-        // Format question and options with superscripts
-        const formattedQuestion = formatExponents(q.q);
-        const formattedOptions = q.options.map(opt => formatExponents(opt));
+        const formattedQuestion = formatMathNotation(q.q);
+        const formattedOptions = q.options.map(opt => formatMathNotation(opt));
         div.innerHTML = `<p>${formattedQuestion}</p>` + formattedOptions.map(opt =>
           `<label><input type="radio" name="q${i}" value="${opt.replace(/<[^>]*>/g, '')}"> ${opt}</label>`
         ).join("");
         container.appendChild(div);
-      });
+   });
 
       // Check if this category was already answered in this session
       const sessionScore = sessionStorage.getItem(category);
@@ -347,15 +342,14 @@ document.addEventListener("DOMContentLoaded", function () {
           window.location.href = "results.html";
         };
       }
-// Add this CSS for better fraction display (optional)
+// Add CSS for fractions
    const style = document.createElement('style');
    style.textContent = `
      .frac { display: inline-block; position: relative; vertical-align: middle; }
      .frac > * { display: block; }
    `;
    document.head.appendChild(style);
-});
-    });
+});    
 
     // Remove the beforeunload event listener that was clearing sessionStorage
 </script>
