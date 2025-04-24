@@ -142,11 +142,15 @@
  <script>
 // Use sessionStorage instead of localStorage for tracking answered categories
 document.addEventListener("DOMContentLoaded", function () {
-   function formatExponents(text) {
-        // First handle exponents with parentheses like 2^(3*2)
+function formatExponents(text) {
+        // Handle exponents with parentheses like 2^(3*2)
         text = text.replace(/(\d+)\^\(([^)]+)\)/g, '$1<sup>$2</sup>');
-        // Then handle simple exponents like 2^3
+        // Handle simple exponents like 2^3
         text = text.replace(/(\d+)\^(\d+)/g, '$1<sup>$2</sup>');
+        // Handle exponents in options that might be written as x^2
+        text = text.replace(/([a-zA-Z])\^(\d+)/g, '$1<sup>$2</sup>');
+        // Handle exponents with variables like x^(2y)
+        text = text.replace(/([a-zA-Z])\^\(([^)]+)\)/g, '$1<sup>$2</sup>');
         return text;
       }
 
