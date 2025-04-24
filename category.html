@@ -142,17 +142,17 @@
  <script>
 // Use sessionStorage instead of localStorage for tracking answered categories
 document.addEventListener("DOMContentLoaded", function () {
-function formatExponents(text) {
-        // Handle exponents with parentheses like 2^(3*2)
-        text = text.replace(/(\d+)\^\(([^)]+)\)/g, '$1<sup>$2</sup>');
-        // Handle simple exponents like 2^3
-        text = text.replace(/(\d+)\^(\d+)/g, '$1<sup>$2</sup>');
-        // Handle exponents in options that might be written as x^2
-        text = text.replace(/([a-zA-Z])\^(\d+)/g, '$1<sup>$2</sup>');
-        // Handle exponents with variables like x^(2y)
-        text = text.replace(/([a-zA-Z])\^\(([^)]+)\)/g, '$1<sup>$2</sup>');
+   function formatExponents(text) {
+        // Handle exponents in parentheses like x^(2)
+        text = text.replace(/([a-zA-Z0-9])\^\(([^)]+)\)/g, '$1<sup>$2</sup>');
+        // Handle simple exponents like x^2 or 2^3
+        text = text.replace(/([a-zA-Z0-9])\^([a-zA-Z0-9]+)/g, '$1<sup>$2</sup>');
+        // Handle exponents in factorization patterns
+        text = text.replace(/([a-zA-Z])(\d+)/g, function(match, p1, p2) {
+            return p1 + '<sup>' + p2 + '</sup>';
+        });
         return text;
-      }
+   }
 
       const allQuestions = [
              // Number System
