@@ -260,15 +260,22 @@ document.addEventListener("DOMContentLoaded", function () {
 categoryQuestions.forEach((q, i) => {
     const div = document.createElement("div");
     div.classList.add("question");
+    
+    // Format both question and options
     const formattedQuestion = formatMathNotation(q.q);
     const formattedOptions = q.options.map(opt => formatMathNotation(opt));
+    
+    // Create radio buttons with raw values (without HTML tags) for comparison
+    const rawOptions = q.options.map(opt => opt.replace(/<[^>]*>/g, ''));
+    const rawCorrectAnswer = q.a.replace(/<[^>]*>/g, '');
+    
     div.innerHTML = `<p>${formattedQuestion}</p>` + 
-        formattedOptions.map(opt =>
-            `<label><input type="radio" name="q${i}" value="${opt.replace(/<[^>]*>/g, '')}"> ${opt}</label>`
+        formattedOptions.map((opt, j) => 
+            `<label><input type="radio" name="q${i}" value="${rawOptions[j]}"> ${opt}</label>`
         ).join("");
+    
     container.appendChild(div);
 });
-
       // Check if this category was already answered in this session
       const sessionScore = sessionStorage.getItem(category);
       if (sessionScore !== null) {
@@ -304,6 +311,12 @@ categoryQuestions.forEach((q, i) => {
       const nextBtn = document.getElementById("next-category-btn");
       const prevBtn = document.getElementById("prev-category-btn");
       const currentIndex = categories.indexOf(category);
+const style = document.createElement('style');
+style.textContent = `
+  sub { vertical-align: sub; font-size: smaller; }
+  .frac { display: inline-block; position: relative; vertical-align: middle; }
+`;
+document.head.appendChild(style);
 
       // Previous Button Setup
       prevBtn.textContent = "Previous Category";
