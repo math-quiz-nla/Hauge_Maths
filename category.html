@@ -256,6 +256,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
       document.getElementById("category-title").textContent = `Category: ${category.replace("_", " ")}`;
       const container = document.getElementById("quiz-container");
+
+const style = document.createElement('style');
+style.textContent = `
+  sub { 
+    vertical-align: sub; 
+    font-size: smaller; 
+  }
+  .frac { 
+    display: inline-block; 
+    position: relative; 
+    vertical-align: middle; 
+  }
+  .frac > * { 
+    display: block; 
+  }
+`;
+document.head.appendChild(style);
       
 categoryQuestions.forEach((q, i) => {
     const div = document.createElement("div");
@@ -311,12 +328,7 @@ categoryQuestions.forEach((q, i) => {
       const nextBtn = document.getElementById("next-category-btn");
       const prevBtn = document.getElementById("prev-category-btn");
       const currentIndex = categories.indexOf(category);
-const style = document.createElement('style');
-style.textContent = `
-  sub { vertical-align: sub; font-size: smaller; }
-  .frac { display: inline-block; position: relative; vertical-align: middle; }
-`;
-document.head.appendChild(style);
+
 
       // Previous Button Setup
       prevBtn.textContent = "Previous Category";
@@ -353,13 +365,7 @@ document.head.appendChild(style);
           window.location.href = "results.html";
         };
       }
-// Add CSS for fractions
-   const style = document.createElement('style');
-   style.textContent = `
-     .frac { display: inline-block; position: relative; vertical-align: middle; }
-     .frac > * { display: block; }
-   `;
-   document.head.appendChild(style);
+
 });    
 
     // Remove the beforeunload event listener that was clearing sessionStorage
