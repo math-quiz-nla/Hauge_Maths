@@ -23,15 +23,26 @@
       padding: 2rem;
       background: var(--bg);
       color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
     }
     h1 {
       margin-bottom: 1.5rem;
       text-align: center;
     }
     /* grid wrapper */
+    #quiz-wrapper {
+      width: 100%;
+      max-width: 1200px;
+      display: flex;
+      justify-content: center;
+    }
     #quiz-container {
       display: grid;
       gap: 1.5rem;
+      width: 100%;
     }
     @media (min-width: 601px) {
       #quiz-container {
@@ -79,12 +90,14 @@
       accent-color: var(--primary);
     }
     /* buttons / links */
-.button-container {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin: 2rem auto 0;
-}
+    .button-container {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin: 2rem auto 0;
+      max-width: 1200px;
+      width: 100%;
+    }
 
     button {
       padding: 0.75rem 1.5rem;
@@ -95,8 +108,6 @@
       border-radius: 0.75rem;
       cursor: pointer;
       transition: background 0.2s;
-      display: block;
-      margin: 2rem auto 0;
     }
     button:hover {
       background: var(--primary-dark);
@@ -109,7 +120,7 @@
       font-weight: 600;
     }
     /* dark‑mode */
-  @media (prefers-color-scheme: dark) {
+    @media (prefers-color-scheme: dark) {
       :root {
         --bg: #111827;
         --card: rgba(31, 41, 55, 0.8);
@@ -129,15 +140,17 @@
 </head>
 <body>
   <h1 id="category-title">Quiz</h1>
-  <div id="quiz-container"></div>
-<div class="button-container">
-  <button id="prev-category-btn">Previous Category</button>
-  <button onclick="submitAnswers()">Submit Answers</button>
-  <button id="next-category-btn">Next Category</button>
-</div>
+  <div id="quiz-wrapper">
+    <div id="quiz-container"></div>
+  </div>
+  <div class="button-container">
+    <button id="prev-category-btn">Previous Category</button>
+    <button onclick="submitAnswers()">Submit Answers</button>
+    <button id="next-category-btn">Next Category</button>
+  </div>
 
-<p id="message"></p>
-<a id="next-category-link" href="#"></a>
+  <p id="message"></p>
+  <a id="next-category-link" href="#"></a>
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
@@ -161,7 +174,7 @@ document.addEventListener("DOMContentLoaded", function () {
             { q: "The difference of two natural numbers is always a natural number.", options: ["True", "False"], a: "False", category: "number_system" },
             { q: "Which of these numbers is an irrational number?", options: ["15", "√2", "21", "2/7"], a: "√2", category: "number_system" },
             { q: "If a and b are two integers, a/b will be a rational number provided that ", options: ["a is a positive integer", "a is a negative integer", " b is different from zero", "a is 1"], a: "b is different from zero", category: "number_system" },
-            { q: "Which of these numbers is a perfect square?", options: ["50", "64", "75", "90"], a: "64", category: "number_system" },
+            { q: "All integers are also rational numbers", options: ["True", "False"], a: "True", category: "number_system" },
 
             // Fractions
             { q: "Solve: 5/8 + 3/8", options: ["1/2", "1", "5/8", "8/8"], a: "1", category: "fractions" },
@@ -209,7 +222,7 @@ document.addEventListener("DOMContentLoaded", function () {
             { q: "What is √16?", options: ["4", "8", "16", "2"], a: "4", category: "radicals" },
             { q: "Simplify √(25 × 16)", options: ["20", "10", "30", "80"], a: "20", category: "radicals" },
             { q: "What is √(81/9)?", options: ["3", "9", "6", "2"], a: "3", category: "radicals" },
-            { q: "What is √(49)?", options: ["5", "7", "9", "3"], a: "7", category: "radicals" },
+            { q: "What is (49)^(1/2)?", options: ["5", "7", "9", "3"], a: "7", category: "radicals" },
             { q: "Which of these is a perfect square?", options: ["14", "16", "18", "20"], a: "16", category: "radicals" },
             
             // Simplifying Expressions
