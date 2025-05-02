@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Algebra Kunnskapstest</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #27ae60;
+      --primary-dark: #219150;
+      --bg: #f4f6f9;
+      --card: #fff;
+      --shadow: 0 4px 14px rgba(0,0,0,0.08);
+    }
+    * { box-sizing: border-box }
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 2rem;
+      background: var(--bg);
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .topics-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .topic-button {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      text-align: center;
+      text-decoration: none;
+      display: block;
+      width: 100%;
+      box-shadow: var(--shadow);
+    }
+    .topic-button:hover {
+      background: var(--primary-dark);
+    }
+    @media (max-width: 768px) {
+      .topics-container {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 480px) {
+      .topics-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Algebra Kunnskapstest</h1>
+  <p style="text-align: center; margin-bottom: 2rem;">Velg en kategori for å begynne testen:</p>
+  
+  <div class="topics-container">
+    <a href="kategori.html?category=number_system" class="topic-button">Tallsystem</a>
+    <a href="kategori.html?category=fractions" class="topic-button">Brøker</a>
+    <a href="kategori.html?category=percentages" class="topic-button">Prosent</a>
+    <a href="kategori.html?category=order_operations" class="topic-button">Regnearternes rekkefølge</a>
+    <a href="kategori.html?category=parenthesis" class="topic-button">Arbeid med parenteser</a>
+    <a href="kategori.html?category=coordinate_system" class="topic-button">Koordinatsystem</a>
+    <a href="kategori.html?category=exponents" class="topic-button">Eksponenter</a>
+    <a href="kategori.html?category=radicals" class="topic-button">Røtter</a>
+    <a href="kategori.html?category=expressions" class="topic-button">Forenkling av uttrykk</a>
+    <a href="kategori.html?category=factorization" class="topic-button">Faktorisering</a>
+    <a href="kategori.html?category=logarithms" class="topic-button">Logaritmer</a>
+  </div>
+</body>
+</html>

@@ -1,13 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="no">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Introduction</title>
+  <title>Introduksjon</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
   <style>
     :root {
       --primary: #27ae60;
+      --primary-light: #d5f5e3;
+      --primary-dark: #219150;
       --bg: #ffffff;
       --card: #e8fdf0;
       --shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
@@ -25,6 +27,7 @@
     header {
       text-align: center;
       margin-bottom: 2rem;
+      position: relative;
     }
     header img {
       height: 100px;
@@ -36,7 +39,7 @@
       width: 100%;
     }
     .header-text h1 {
-      margin: 0;
+      margin: 1.5rem 0 0; /* Added top margin for spacing */
       font-size: 1.5rem;
       color: var(--primary);
     }
@@ -69,6 +72,83 @@
     .start-button:hover {
       background: #219150;
     }
+
+    /* Updated language toggle styles */
+    .language-toggle {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 1rem 0 1.5rem; /* Added margin for spacing */
+    }
+    
+    .language-toggle-text {
+      margin: 0 10px;
+      font-weight: 600;
+      color: var(--primary);
+    }
+    
+    .language-switch {
+      position: relative;
+      display: inline-block;
+      width: 80px;
+      height: 34px;
+    }
+    
+    .language-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .language-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #e0e0e0;
+      transition: .4s;
+      border-radius: 34px;
+    }
+    
+    .language-slider:before {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    
+    input:checked + .language-slider {
+      background-color: var(--primary);
+    }
+    
+    input:checked + .language-slider:before {
+      transform: translateX(46px);
+    }
+    
+    .language-labels {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 10px;
+      pointer-events: none;
+    }
+    
+    .language-labels span {
+      color: white;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
     @media (prefers-color-scheme: dark) {
       :root {
         --bg: #111827;
@@ -78,6 +158,9 @@
       body {
         color: #e5e7eb;
       }
+      .language-slider {
+        background-color: #4B5563;
+      }
     }
   </style>
 </head>
@@ -85,19 +168,54 @@
   <header>
     <img src="nla-logo.png" alt="NLA University College Logo" />
     <div class="logo-divider"></div>
-    </header>
+    
+    <!-- Moved language toggle here with centered positioning -->
+    <div class="language-toggle">
+      <span class="language-toggle-text">NO</span>
+      <label class="language-switch">
+        <input type="checkbox" id="lang-toggle">
+        <span class="language-slider"></span>
+        <div class="language-labels">
+          <span>NO</span>
+          <span>EN</span>
+        </div>
+      </label>
+      <span class="language-toggle-text">EN</span>
+    </div>
+    
+    <div class="header-text">
+      <h1>Introduksjon til Algebra Kunnskapstest</h1>
+    </div>
+  </header>
 
   <div class="content">
-    <h1>Introduction to Algebra Knowledge Test</h1>
-    <p>Welcome to the page where you can test your algebra knowledge. The goal of this test is to help you assess whether you have the necessary background knowledge required for courses like mathematics for economics. If the test results show low skill levels, a pre-course in mathematics is recommended before taking such courses.</p>
+    <p>Velkommen til siden hvor du kan teste din algebrakunnskap. Målet med denne testen er å hjelpe deg med å vurdere om du har den nødvendige bakgrunnskunnskapen som kreves for kurs som matematikk for økonomi. Hvis testresultatene viser lave ferdighetsnivåer, anbefales et forkurs i matematikk før du tar slike kurs.</p>
 
-    <p>The test consists of 11 categories, each with five multiple choice questions. You can start the test by selecting any category. Answer all the questions and save your responses. Use the navigation buttons to move between categories. Unanswered questions will be marked as incorrect in the final score.</p>
+    <p>Testen består av 11 kategorier, hver med fem flervalgsspørsmål. Du kan starte testen ved å velge en hvilken som helst kategori. Svar på alle spørsmålene og lagre svarene dine. Bruk navigasjonsknappene for å bevege deg mellom kategorier. Ubesvarte spørsmål vil bli merket som feil i den endelige poengsummen.</p>
 
-    <p>At the end of the test, a report will be generated showing your total score out of 55 and your skill level in each category. Results will be presented as a radar chart or a bar chart. Links to Khan Academy materials for each category will be provided to help you improve your skills.</p>
+    <p>På slutten av testen vil en rapport bli generert som viser din totale poengsum ut av 55 og ditt ferdighetsnivå i hver kategori. Resultatene vil bli presentert som et radardiagram eller et søylediagram. Det vil bli gitt lenker til Khan Academy-materiell for hver kategori for å hjelpe deg med å forbedre ferdighetene dine.</p>
 
-    <p>This page was developed with the help of AI tools.</p>
+    <p>Denne siden ble utviklet med hjelp av AI-verktøy.</p>
 
-    <a href="topics.html" class="start-button">Start the test</a>
+    <a href="emner.html" class="start-button">Start testen</a>
   </div>
+
+  <script>
+    const toggle = document.getElementById('lang-toggle');
+    const currentPath = window.location.pathname;
+    
+    // Set initial state based on current language
+    if (currentPath.includes('/en/') || currentPath.includes('index-en.html')) {
+      toggle.checked = true;
+    }
+    
+    toggle.addEventListener('change', () => {
+      if (toggle.checked) {
+        window.location.href = 'en/index-en.html'; // go to English version
+      } else {
+        window.location.href = 'index.html'; // go to Norwegian version
+      }
+    });
+  </script>
 </body>
 </html>

@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Test – Kategori</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #27ae60;
+      --primary-light: #d5f5e3;
+      --primary-dark: #219150;
+      --bg: #ffffff;
+      --card: rgba(255, 255, 255, 0.8);
+      --shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: "Inter", sans-serif;
+      margin: 0;
+      padding: 2rem;
+      background: var(--bg);
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    h1 {
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    #quiz-wrapper {
+      width: 100%;
+      max-width: 1200px;
+      display: flex;
+      justify-content: center;
+    }
+    #quiz-container {
+      display: grid;
+      gap: 1.5rem;
+      width: 100%;
+    }
+    @media (min-width: 601px) {
+      #quiz-container {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      }
+    }
+    @media (max-width: 600px) {
+      body {
+        padding: 1rem;
+      }
+      h1 {
+        font-size: 1.5rem;
+      }
+      #quiz-container {
+        grid-template-columns: 1fr;
+      }
+    }
+    .question {
+      background: var(--primary-light);
+      padding: 1.5rem;
+      border-radius: 1rem;
+      box-shadow: var(--shadow);
+      border: 2px solid var(--primary);
+      transition: transform 0.2s;
+      backdrop-filter: blur(5px);
+      background: linear-gradient(
+        to right bottom,
+        rgba(255, 255, 255, 0.7),
+        rgba(213, 245, 227, 0.8)
+      );
+    }
+    .question:hover {
+      transform: translateY(-4px);
+    }
+    label {
+      display: block;
+      margin: 0.6rem 0;
+      line-height: 1.4;
+      min-height: 48px;
+      cursor: pointer;
+    }
+    input[type="radio"] {
+      margin-right: 0.5rem;
+      accent-color: var(--primary);
+    }
+    .button-container {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin: 2rem auto 0;
+      max-width: 1200px;
+      width: 100%;
+    }
+
+    button {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: var(--primary-dark);
+    }
+    #next-category-link {
+      display: none;
+      margin-top: 1.5rem;
+      color: var(--primary);
+      text-align: center;
+      font-weight: 600;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #111827;
+        --card: rgba(31, 41, 55, 0.8);
+        --shadow: none;
+        --primary-light: #1a3a2a;
+      }
+      .question {
+        background: linear-gradient(
+          to right bottom,
+          rgba(31, 41, 55, 0.7),
+          rgba(26, 58, 42, 0.8)
+        );
+        border: 2px solid var(--primary);
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1 id="category-title">Kategori</h1>
+  <div id="quiz-wrapper">
+    <div id="quiz-container"></div>
+  </div>
+  <div class="button-container">
+    <button id="prev-category-btn">Forrige kategori</button>
+    <button onclick="submitAnswers()">Send inn svar</button>
+    <button id="next-category-btn">Neste kategori</button>
+  </div>
+
+  <p id="message"></p>
+  <a id="next-category-link" href="#"></a>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+   function formatMathNotation(text) {
+    text = text.replace(/(\w+)\^\(([^)]+)\)/g, '$1<sup>$2</sup>');
+    text = text.replace(/(\w+)\^(\w+)/g, '$1<sup>$2</sup>');
+    text = text.replace(/log\((\d+)\)\(([^)]+)\)/g, 'log<sub>$1</sub>($2)');
+    text = text.replace(/log\(([^)]+)\)/g, 'log<sub>10</sub>($1)');
+    text = text.replace(/(\d+)\/(\d+)/g, '<span class="frac">$1/$2</span>');
+    return text;
+}
+      const allQuestions = [
+             // Tallsystem
+            { q: "Hvilket av følgende er et heltall?", options: ["3/4", "√2", "-3", "0.75"], a: "-3", category: "number_system" },
+            { q: "Forskjellen mellom to naturlige tall er alltid et naturlig tall.", options: ["Sant", "Usant"], a: "Usant", category: "number_system" },
+            { q: "Hvilket av disse tallene er et irrasjonalt tall?", options: ["15", "√2", "21", "2/7"], a: "√2", category: "number_system" },
+            { q: "Hvis a og b er to heltall, vil a/b være et rasjonalt tall forutsatt at", options: ["a er et positivt heltall", "a er et negativt heltall", "b er forskjellig fra null", "a er 1"], a: "b er forskjellig fra null", category: "number_system" },
+            { q: "Alle heltall er også rasjonale tall", options: ["Sant", "Usant"], a: "Sant", category: "number_system" },
+
+            // Brøker
+            { q: "Løs: 5/8 + 3/8", options: ["1/2", "1", "5/8", "8/8"], a: "1", category: "fractions" },
+            { q: "Forenkl: 7/9 ÷ 2/3", options: ["21/18", "14/27", "7/6", "2/9"], a: "7/6", category: "fractions" },
+            { q: "Multipliser: 3/4 × 2/5", options: ["6/20", "3/10", "2/15", "5/8"], a: "6/20", category: "fractions" },
+            { q: "Subtraher: 7/12 - 5/12", options: ["1/6", "2/12", "1/3", "5/6"], a: "2/12", category: "fractions" },
+            { q: "Konverter 5/4 til et blandet tall", options: ["1 1/4", "2 1/4", "1 2/4", "1 3/4"], a: "1 1/4", category: "fractions" },
+
+            // Prosenter
+            { q: "25% av x er lik 10. Finn x.", options: ["30", "40", "50", "60"], a: "40", category: "percentages" },
+            { q: "Hvis en vare er nedsatt med 20% og nå koster 80 kr, hva var den opprinnelige prisen?", options: ["90", "100", "110", "120"], a: "100", category: "percentages" },
+            { q: "Konverter 0.6 til prosent.", options: ["60%", "6%", "0.06%", "600%"], a: "60%", category: "percentages" },
+            { q: "Hva er 120% av 50?", options: ["60", "70", "75", "80"], a: "60", category: "percentages" },
+            { q: "Et tall øker fra 40 til 50. Hva er prosentvis økning?", options: ["20%", "25%", "10%", "30%"], a: "25%", category: "percentages" },
+
+            // Regnerekkefølge
+            { q: "Løs: 4 + 3 × 2 - 5", options: ["5", "7", "9", "11"], a: "5", category: "order_operations" },
+            { q: "Evaluer: (6 - 2) × (5 + 3)", options: ["20", "32", "40", "48"], a: "32", category: "order_operations" },
+            { q: "Forenkl: 3 × 4 + 5", options: ["17", "15", "20", "22"], a: "17", category: "order_operations" },
+            { q: "Løs: 6 ÷ 2 × (1 + 2)", options: ["6", "9", "12", "18"], a: "9", category: "order_operations" },
+            { q: "Forenkl: (4 + 2) × (7 - 3)", options: ["24", "20", "18", "12"], a: "24", category: "order_operations" },
+
+            // Parenteser
+            { q: "Løs: (5 + 3) × 2", options: ["16", "18", "14", "12"], a: "16", category: "parenthesis" },
+            { q: "Evaluer: (2 + 4) × (5 - 3)", options: ["12", "16", "18", "20"], a: "12", category: "parenthesis" },
+            { q: "Forenkl: 3 × (2 + 5)", options: ["21", "20", "18", "15"], a: "21", category: "parenthesis" },
+            { q: "Løs: (8 ÷ 2) × 3", options: ["12", "18", "15", "10"], a: "12", category: "parenthesis" },
+            { q: "Forenkl: (6 + 4) ÷ 2", options: ["3", "5", "4", "2"], a: "5", category: "parenthesis" },
+
+            // Koordinatsystem
+            { q: "Hva er koordinatene til origo i et koordinatsystem?", options: ["(0, 0)", "(1, 1)", "(0, 1)", "(1, 0)"], a: "(0, 0)", category: "coordinate_system" },
+            { q: "Hvis et punkt er plassert på (3, 5), hva er x-koordinaten?", options: ["3", "5", "8", "-3"], a: "3", category: "coordinate_system" },
+            { q: "Hva er y-koordinaten til punktet (7, -2)?", options: ["-2", "7", "0", "2"], a: "-2", category: "coordinate_system" },
+            { q: "Hvilket av disse punktene ligger i tredje kvadrant?", options: ["(-4, 5)", "(3, -2)", "(2, 3)", "(-5, -6)"], a: "(-5, -6)", category: "coordinate_system" },
+            { q: "Hva er avstanden mellom punktene (2, 3) og (5, 7)?", options: ["5", "6", "7", "4"], a: "5", category: "coordinate_system" },
+
+            // Eksponenter
+            { q: "Hva er 2^3?", options: ["6", "8", "4", "2"], a: "8", category: "exponents" },
+            { q: "Hva er (3^2) × (3^4)?", options: ["3^6", "3^8", "3^5", "6^3"], a: "3^6", category: "exponents" },
+            { q: "Forenkl: 5^0", options: ["1", "5", "0", "udefinert"], a: "1", category: "exponents" },
+            { q: "Hva er verdien av 4^1?", options: ["4", "1", "16", "2"], a: "4", category: "exponents" },
+            { q: "Hva er 2^(3 × 2)?", options: ["8", "64", "32", "4"], a: "64", category: "exponents" },
+            
+            // Røtter
+            { q: "Hva er √16?", options: ["4", "8", "16", "2"], a: "4", category: "radicals" },
+            { q: "Forenkl √(25 × 16)", options: ["20", "10", "30", "80"], a: "20", category: "radicals" },
+            { q: "Hva er √(81/9)?", options: ["3", "9", "6", "2"], a: "3", category: "radicals" },
+            { q: "Hva er (49)^(1/2)?", options: ["5", "7", "9", "3"], a: "7", category: "radicals" },
+            { q: "Hvilket av disse er et perfekt kvadrat?", options: ["14", "16", "18", "20"], a: "16", category: "radicals" },
+            
+            // Forenkling av uttrykk
+            { q: "Forenkl: 3x + 5x", options: ["8x", "5x", "2x", "10x"], a: "8x", category: "expressions" },
+            { q: "Forenkl: 4(x + 2) - 3(x + 4)", options: ["x + 2", "x + 6", "5x + 8", "2x + 5"], a: "x + 2", category: "expressions" },
+            { q: "Forenkl: 6a + 2b - 3a - 4b", options: ["3a - 2b", "2a - 2b", "3a + 6b", "6a - 2b"], a: "3a - 2b", category: "expressions" },
+            { q: "Forenkl: 2(3y + 5)", options: ["6y + 5", "6y + 10", "5y + 2", "2y + 5"], a: "6y + 10", category: "expressions" },
+            { q: "Forenkl: 7(x + 2) - 3(x - 4)", options: ["4x + 26", "4x + 10", "7x + 14", "4x + 16"], a: "4x + 26", category: "expressions" },
+            
+            // Faktorisering
+            { q: "Faktoriser: x^2 + 5x", options: ["x(x + 5)", "x^2 + 5", "x(x + 2)", "x(x + 3)"], a: "x(x + 5)", category: "factorization" },
+            { q: "Faktoriser: x^2 - 9", options: ["(x + 3)(x - 3)", "(x + 5)(x - 5)", "(x + 2)(x - 3)", "(x - 2)(x + 4)"], a: "(x + 3)(x - 3)", category: "factorization" },
+            { q: "Faktoriser: x^2 + 4x", options: ["x(x + 4)", "(x + 2)(x + 2)", "(x + 3)(x + 1)", "(x + 5)(x - 1)"], a: "x(x + 4)", category: "factorization" },
+            { q: "Faktoriser: x^2 - 4x", options: ["x(x - 4)", "(x - 2)(x + 2)", "(x + 3)(x - 1)", "(x - 1)(x - 4)"], a: "x(x - 4)", category: "factorization" },
+            { q: "Faktoriser: x^2 + 3x", options: ["x(x + 3)", "(x + 1)(x + 3)", "(x + 5)(x - 1)", "x(x + 1)"], a: "x(x + 3)", category: "factorization" },
+
+            // Logaritmer
+            { q: "Hva er log(100)?", options: ["2", "10", "1", "100"], a: "2", category: "logarithms" },
+            { q: "Løs for x hvis log(x) = 3", options: ["x = 1000", "x = 10", "x = 3", "x = 100"], a: "x = 1000", category: "logarithms" },
+            { q: "Hva er log(2)(1)?", options: ["0", "1", "2", "udefinert"], a: "0", category: "logarithms" },
+            { q: "Hva er log(10^2)?", options: ["1", "2", "100", "10"], a: "2", category: "logarithms" },
+            { q: "Hva er log(2)(8)?", options: ["2", "3", "8", "4"], a: "3", category: "logarithms" },
+        ];
+
+      const categories = [
+        "number_system", "fractions", "percentages", "order_operations",
+        "parenthesis", "coordinate_system", "exponents", "radicals",
+        "expressions", "factorization", "logarithms"
+      ];
+
+      const categoryNames = {
+        "number_system": "Tallsystem",
+        "fractions": "Brøker",
+        "percentages": "Prosent",
+        "order_operations": "Regnerekkefølge",
+        "parenthesis": "Parenteser",
+        "coordinate_system": "Koordinatsystem",
+        "exponents": "Eksponenter",
+        "radicals": "Røtter",
+        "expressions": "Uttrykk",
+        "factorization": "Faktorisering",
+        "logarithms": "Logaritmer"
+      };
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const category = urlParams.get("category");
+      let answersSubmitted = false;
+
+      if (!category) {
+        document.getElementById("quiz-container").innerHTML = "<p>Feil: Ingen kategori valgt.</p>";
+        return;
+      }
+
+      const categoryQuestions = allQuestions.filter(q => q.category === category);
+      if (categoryQuestions.length === 0) {
+        document.getElementById("quiz-container").innerHTML = "<p>Ingen spørsmål funnet for denne kategorien.</p>";
+        return;
+      }
+
+      document.getElementById("category-title").textContent = `Kategori: ${categoryNames[category] || category.replace("_", " ")}`;
+      const container = document.getElementById("quiz-container");
+
+      const style = document.createElement('style');
+      style.textContent = `
+        sub { 
+          vertical-align: sub; 
+          font-size: smaller; 
+        }
+        .frac { 
+          display: inline-block; 
+          position: relative; 
+          vertical-align: middle; 
+        }
+        .frac > * { 
+          display: block; 
+        }
+      `;
+      document.head.appendChild(style);
+      
+      categoryQuestions.forEach((q, i) => {
+          const div = document.createElement("div");
+          div.classList.add("question");
+          
+          const formattedQuestion = formatMathNotation(q.q);
+          const formattedOptions = q.options.map(opt => formatMathNotation(opt));
+          const rawOptions = q.options.map(opt => opt.replace(/<[^>]*>/g, ''));
+          const rawCorrectAnswer = q.a.replace(/<[^>]*>/g, '');
+          
+          div.innerHTML = `<p>${formattedQuestion}</p>` + 
+              formattedOptions.map((opt, j) => 
+                  `<label><input type="radio" name="q${i}" value="${rawOptions[j]}"> ${opt}</label>`
+              ).join("");
+          
+          container.appendChild(div);
+      });
+
+      const sessionScore = sessionStorage.getItem(category);
+      if (sessionScore !== null) {
+        answersSubmitted = true;
+        if (confirm("Du har allerede besvart denne kategorien i denne økten. Vil du endre svarene dine?")) {
+          answersSubmitted = false;
+          document.getElementById("message").textContent = "Du kan endre svarene dine.";
+        } else {
+          document.getElementById("message").textContent = "Dine tidligere svar er lagret for denne økten.";
+        }
+      }
+
+      window.submitAnswers = () => {
+        let score = 0;
+        categoryQuestions.forEach((q, i) => {
+          const selected = document.querySelector(`input[name="q${i}"]:checked`);
+          if (selected && selected.value === q.a) {
+            score++;
+          }
+        });
+        localStorage.setItem(category, score);
+        sessionStorage.setItem(category, score);
+        answersSubmitted = true;
+        document.getElementById("message").textContent = "Kategori fullført. Svarene dine er registrert.";
+      };
+
+      function isAnyQuestionAnswered() {
+        return categoryQuestions.some((q, i) => 
+          document.querySelector(`input[name="q${i}"]:checked`)
+        );
+      }
+
+      const nextBtn = document.getElementById("next-category-btn");
+      const prevBtn = document.getElementById("prev-category-btn");
+      const currentIndex = categories.indexOf(category);
+
+      // Forrige-knapp
+      prevBtn.textContent = "Forrige kategori";
+      prevBtn.onclick = () => {
+        if (!answersSubmitted && isAnyQuestionAnswered()) {
+          if (confirm("Du har ubesvarte spørsmål. Vil du lagre svarene dine før du går videre?")) {
+            submitAnswers();
+          }
+        }
+        const prevCategory = categories[currentIndex - 1];
+        window.location.href = `kategori.html?category=${prevCategory}`;
+      };
+
+      // Neste-knapp
+      if (currentIndex < categories.length - 1) {
+        nextBtn.textContent = "Neste kategori";
+        nextBtn.onclick = () => {
+          if (!answersSubmitted && isAnyQuestionAnswered()) {
+            if (confirm("Du har ubesvarte spørsmål. Vil du lagre svarene dine før du går videre?")) {
+              submitAnswers();
+            }
+          }
+          const nextCategory = categories[currentIndex + 1];
+          window.location.href = `kategori.html?category=${nextCategory}`;
+        };
+      } else {
+        nextBtn.textContent = "Se resultater";
+        nextBtn.onclick = () => {
+          if (!answersSubmitted && isAnyQuestionAnswered()) {
+            if (confirm("Du har ubesvarte spørsmål. Vil du lagre svarene dine før du ser på resultatene?")) {
+              submitAnswers();
+            }
+          }
+          window.location.href = "resultstater.html";
+        };
+      }
+});
+</script>
+</body>
+</html>
