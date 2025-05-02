@@ -38,14 +38,24 @@
       display: flex;
       gap: 0.5rem;
       flex-wrap: wrap;
+      justify-content: center;
     }
     .scale div {
       flex: 1 0 100px;
-      padding: 0.5rem 0.75rem;
+      padding: 0.5rem;
       border-radius: 0.5rem;
       color: #fff;
       font-size: 0.85rem;
       text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 60px;
+    }
+    .scale div span:first-child {
+      font-weight: bold;
+      font-size: 0.95rem;
+      margin-bottom: 0.2rem;
     }
     .low {
       background: #e74c3c;
@@ -62,11 +72,18 @@
     .expert {
       background: #8e44ad;
     }
-    canvas {
+    .chart-container {
       background: var(--card);
       border-radius: 1rem;
       box-shadow: var(--shadow);
       padding: 1rem;
+      height: 400px;
+      width: 100%;
+      position: relative;
+    }
+    canvas {
+      width: 100% !important;
+      height: 100% !important;
     }
     #bar {
       display: none;
@@ -75,6 +92,7 @@
       text-align: center;
       font-weight: 600;
       font-size: 1.125rem;
+      margin-bottom: 1rem;
     }
     .chart-toggle {
       text-align: center;
@@ -89,16 +107,40 @@
       border-radius: 0.5rem;
       cursor: pointer;
       transition: background 0.2s;
+      margin: 0 0.5rem;
     }
     .chart-toggle button:hover {
       background: #219150;
+    }
+    #weak-categories {
+      background: var(--card);
+      padding: 1.5rem;
+      border-radius: 1rem;
+      box-shadow: var(--shadow);
+    }
+    #weak-categories h2 {
+      margin-top: 0;
+      color: var(--primary);
+    }
+    #weak-categories a {
+      color: var(--primary);
+      text-decoration: none;
+      display: block;
+      margin: 0.5rem 0;
+    }
+    #weak-categories a:hover {
+      text-decoration: underline;
     }
     @media (max-width: 480px) {
       #radar {
         display: none !important;
       }
       #bar {
-        display: block;
+        display: block !important;
+      }
+      .scale div {
+        flex: 1 0 80px;
+        min-height: 50px;
       }
     }
     @media (prefers-color-scheme: dark) {
@@ -120,18 +162,20 @@
   </div>
   <div class="wrapper">
     <div class="scale">
-      <div class="low">0-10 Nybegynner</div>
-      <div class="basic">11-22 Grunnleggende</div>
-      <div class="intermediate">23-34 Mellomnivå</div>
-      <div class="advanced">35-45 Videregående</div>
-      <div class="expert">46-55 Ekspert</div>
+      <div class="low"><span>0-10</span><span>Nybegynner</span></div>
+      <div class="basic"><span>11-22</span><span>Grunnleggende</span></div>
+      <div class="intermediate"><span>23-34</span><span>Mellomnivå</span></div>
+      <div class="advanced"><span>35-45</span><span>Videregående</span></div>
+      <div class="expert"><span>46-55</span><span>Ekspert</span></div>
     </div>
     <div class="chart-toggle">
       <button onclick="showRadarChart()">Radardiagram</button>
       <button onclick="showBarChart()">Søylediagram</button>
     </div>
-    <canvas id="radar" height="350"></canvas>
-    <canvas id="bar" height="350"></canvas>
+    <div class="chart-container">
+      <canvas id="radar"></canvas>
+      <canvas id="bar"></canvas>
+    </div>
     <div id="weak-categories"></div>
   </div>
   <script>
@@ -149,10 +193,158 @@
       factorization: "Faktorisering",
       logarithms: "Logaritmer"
     };
-    
-    // Your existing results JavaScript with Norwegian text
-    document.querySelector('.chart-toggle button:first-child').textContent = "Radardiagram";
-    document.querySelector('.chart-toggle button:last-child').textContent = "Søylediagram";
+
+    // Get scores from localStorage
+    const categories = Object.keys(categoryNames);
+    const scores = categories.map(category => parseInt(localStorage.getItem(category) || 0));
+    const totalScore = scores.reduce((acc, score) => acc + score, 0);
+    document.getElementById('total-score').textContent = totalScore;
+
+    // Initialize charts
+    let radarChart, barChart;
+
+    function initCharts() {
+      const radarCtx = document.getElementById('radar').getContext('2d');
+      const barCtx = document.getElementById('bar').getContext('2d');
+
+      const labels = categories.map(cat => categoryNames[cat]);
+
+      // Color functions matching results.html
+      const getColor = (score, alpha = 1) => {
+        if (score <= 1) return `rgba(231, 76, 60, ${alpha})`;      // Very low (0-1)
+        if (score <= 2) return `rgba(243, 156, 18, ${alpha})`;     // Low (2)
+        if (score <= 3) return `rgba(39, 174, 96, ${alpha})`;      // Medium (3)
+        if (score <= 4) return `rgba(41, 128, 185, ${alpha})`;     // High (4)
+        return `rgba(142, 68, 173, ${alpha})`;                     // Perfect (5)
+      };
+
+      // Radar chart with same style as results.html
+      radarChart = new Chart(radarCtx, {
+        type: 'radar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Poengsum',
+            data: scores,
+            backgroundColor: 'rgba(39, 174, 96, 0.1)',
+            borderColor: 'rgba(39, 174, 96, 0.8)',
+            pointBackgroundColor: scores.map(score => getColor(score)),
+            pointBorderColor: '#fff',
+            pointHoverRadius: 6,
+            pointRadius: 4,
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            r: {
+              angleLines: {
+                display: true,
+                color: 'rgba(0, 0, 0, 0.1)'
+              },
+              suggestedMin: 0,
+              suggestedMax: 5,
+              ticks: {
+                stepSize: 1,
+                backdropColor: 'transparent',
+                font: {
+                  size: 12
+                }
+              },
+              pointLabels: {
+                font: {
+                  size: 12
+                }
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: false
+            }
+          }
+        }
+      });
+
+      // Bar chart with same style as results.html
+      barChart = new Chart(barCtx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Poengsum',
+            data: scores,
+            backgroundColor: scores.map(score => getColor(score, 0.7)),
+            borderColor: scores.map(score => getColor(score)),
+            borderWidth: 1,
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 5,
+              ticks: {
+                stepSize: 1,
+                font: {
+                  size: 12
+                }
+              }
+            },
+            x: {
+              ticks: {
+                font: {
+                  size: 12
+                }
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: false
+            }
+          }
+        }
+      });
+    }
+
+    function showRadarChart() {
+      document.getElementById('radar').style.display = 'block';
+      document.getElementById('bar').style.display = 'none';
+    }
+
+    function showBarChart() {
+      document.getElementById('radar').style.display = 'none';
+      document.getElementById('bar').style.display = 'block';
+    }
+
+    // Initialize on page load
+    window.onload = function() {
+      initCharts();
+      showRadarChart(); // Show radar chart by default
+      
+      // Suggest resources for weak categories (score < 3)
+      const weakCategories = categories.filter((cat, index) => scores[index] < 3);
+      if (weakCategories.length > 0) {
+        const weakLinks = weakCategories.map(cat => 
+          `<a href="https://www.khanacademy.org/search?page_search_query=${categoryNames[cat].replace(/ /g, '+')}" target="_blank">${categoryNames[cat]}</a>`
+        ).join("");
+        document.getElementById("weak-categories").innerHTML = `
+          <h2>Ressurser for å forbedre dine ferdigheter</h2>
+          ${weakLinks}
+        `;
+      } else {
+        document.getElementById("weak-categories").innerHTML = `
+          <h2>Godt jobbet!</h2>
+          <p>Du har gode resultater i alle kategorier.</p>
+        `;
+      }
+    };
   </script>
 </body>
 </html>
