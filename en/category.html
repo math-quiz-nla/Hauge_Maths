@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Test – Category</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --primary: #27ae60;
+      --primary-light: #d5f5e3;
+      --primary-dark: #219150;
+      --bg: #ffffff;
+      --card: rgba(255, 255, 255, 0.8);
+      --shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Inter", sans-serif;
+      margin: 0;
+      padding: 2rem;
+      background: var(--bg);
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    h1 { margin-bottom: 1.5rem; text-align: center; }
+    #quiz-wrapper { width: 100%; max-width: 1200px; }
+    
+    #quiz-container { 
+      display: grid; 
+      gap: 1.5rem; 
+      width: 100%; 
+    }
+    
+    @media (min-width: 601px) { 
+      #quiz-container { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); } 
+    }
+    @media (max-width: 600px) {
+      body { padding: 1rem; }
+      h1 { font-size: 1.5rem; }
+      #quiz-container { grid-template-columns: 1fr; }
+    }
+
+    .question, #category-results {
+      padding: 1.5rem;
+      border-radius: 1rem;
+      box-shadow: var(--shadow);
+      border: 2px solid var(--primary);
+      backdrop-filter: blur(5px);
+      background: linear-gradient(to right bottom, rgba(255, 255, 255, 0.7), rgba(213, 245, 227, 0.8));
+    }
+
+    .question { transition: transform 0.2s; }
+    .question:hover { transform: translateY(-4px); }
+    
+    #category-results { 
+      display: none; 
+      text-align: center; 
+      flex-direction: column;
+      justify-content: center;
+      min-height: 300px;
+    }
+
+    label { display: block; margin: 0.6rem 0; line-height: 1.4; min-height: 48px; cursor: pointer; }
+    input[type="radio"] { margin-right: 0.5rem; accent-color: var(--primary); }
+    
+    .button-container { display: flex; justify-content: center; gap: 1rem; margin: 2rem auto 0; max-width: 1200px; width: 100%; }
+    button { padding: 0.75rem 1.5rem; font-size: 1rem; background: var(--primary); color: #fff; border: none; border-radius: 0.75rem; cursor: pointer; transition: background 0.2s; }
+    button:hover { background: var(--primary-dark); }
+    
+    #message { margin-top: 1rem; font-weight: 600; text-align: center; }
+
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #111827; --card: rgba(31, 41, 55, 0.8); --shadow: none; --primary-light: #1a3a2a; }
+      .question, #category-results { background: linear-gradient(to right bottom, rgba(31, 41, 55, 0.7), rgba(26, 58, 42, 0.8)); border: 2px solid var(--primary); }
+    }
+  </style>
+</head>
+<body>
+  <h1 id="category-title">Quiz</h1>
+  
+  <div id="quiz-wrapper">
+    <div id="quiz-container">
+      <div id="category-results">
+        <h3>Category Results</h3>
+        <canvas id="categoryPie"></canvas>
+        <p id="mastery-level" style="font-weight:bold; margin-top:10px;"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="button-container">
+    <button id="prev-category-btn">Previous Category</button>
+    <button onclick="submitAnswers()">Submit Answers</button>
+    <button id="next-category-btn">Next Category</button>
+  </div>
+  
+  <p id="message"></p>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  // FIXED: Changed "order_operations" to "order_of_operations" to match question data
+  const categories = ["number_system", "fractions", "percentages", "order_of_operations", "parenthesis", "coordinate_system", "exponents", "expressions", "logarithms", "functions"];
+  
+  const allQuestions = [
+ // ===================== NUMBER SYSTEM (5) =====================
+  {
+    q: "Which of the following is an integer?",
+    options: ["$\\frac{3}{4}$", "$-3$", "$\\sqrt{2}$", "None of the above"],
+    a: "$-3$",
+    category: "number_system"
+  },
+  {
+    q: "How can we write 7 000 000 in standard form?",
+    options: [
+      "$7 \\cdot 10^{-7}$",
+      "$7 \\cdot 10^{-6}$",
+      "$7 \\cdot 10^6$",
+      "None of the above"
+    ],
+    a: "7$ \\cdot 10^6$",
+    category: "number_system"
+  },
+  {
+    q: "Which of these is an irrational number?",
+    options: ["$\\sqrt{3}$", "$\\frac{2}{5}$", "$0.25$", "None of the above"],
+    a: "$\\sqrt{3}$",
+    category: "number_system"
+  },
+  {
+    q: "Which of the following is equivalent to $4 \\frac{2}{5}$?",
+    options: ["$\\frac{22}{5}$", "$\\frac{8}{5}$", "$0.75$", "None of the above"],
+    a: "$\\frac{22}{5}$",
+    category: "number_system"
+  },
+  {
+    q: "Which of the following is a natural number?",
+    options: ["$-1$", "$\\frac{1}{2}$", "$0$", "None of the above"],
+    a: "None of the above",
+    category: "number_system"
+  },
+
+  // ===================== FRACTIONS (5) =====================
+  {
+    q: "Solve: $\\frac{1}{2} + \\frac{1}{4}$",
+    options: ["$\\frac{1}{6}$", "$\\frac{3}{4}$", "$\\frac{2}{6}$", "None of the above"],
+    a: "$\\frac{3}{4}$",
+    category: "fractions"
+  },
+  {
+    q: "Solve: $\\frac{5}{3} - 8$",
+    options: ["$\\frac{2}{3}$", "$\\frac{-19}{3}$", "$\\frac{6}{4}$", "None of the above"],
+    a: "$\\frac{-19}{3}$",
+    category: "fractions"
+  },
+  {
+    q: "Multiply: $\\frac{2}{3} \\times \\frac{3}{5}$",
+    options: ["$\\frac{2}{5}$", "$\\frac{5}{15}$", "$\\frac{3}{5}$", "None of the above"],
+    a: "$\\frac{2}{5}$",
+    category: "fractions"
+  },
+  {
+    q: "Divide: $\\frac{3}{4} \\div \\frac{1}{2}$",
+    options: ["$\\frac{3}{8}$", "$\\frac{3}{2}$", "$\\frac{3}{4}$", "None of the above"],
+    a: "$\\frac{3}{2}$",
+    category: "fractions"
+  },
+  {
+    q: "Which of the following equals $\\frac{1}{2}$?",
+    options: ["$\\frac{2}{4}$", "$\\frac{3}{6}$", "$\\frac{4}{8}$", "All of the above"],
+    a: "All of the above",
+    category: "fractions"
+  },
+
+  // ===================== PERCENTAGES (5) =====================
+  {
+    q: "What is $50\\%$ of $80$?",
+    options: ["$30$", "$50$", "$40$", "None of the above"],
+    a: "$40$",
+    category: "percentages"
+  },
+  {
+    q: "Convert $0.25$ to percent.",
+    options: ["$250\\%$", "$25\\%$", "$2.5\\%$", "None of the above"],
+    a: "$25\\%$",
+    category: "percentages"
+  },
+  {
+    q: "What is $10\\%$ of $200$?",
+    options: ["$10$", "$20$", "$15$", "None of the above"],
+    a: "$20$",
+    category: "percentages"
+  },
+  {
+    q: "If we increase $100$ by $20\\%$, it becomes.",
+    options: ["$110$", "$130$", "$120$", "None of the above"],
+    a: "$120$",
+    category: "percentages"
+  },
+  {
+    q: "Which of the following equals $75\\%$?",
+    options: ["$\\frac{1}{2}$", "$\\frac{3}{4}$", "$\\frac{2}{3}$", "None of the above"],
+    a: "$\\frac{3}{4}$",
+    category: "percentages"
+  },
+
+  // ===================== ORDER OF OPERATIONS (5) =====================
+  {
+    q: "Solve: $5 + 2 \\times 3$",
+    options: ["$21$", "$7$", "$11$", "None of the above"],
+    a: "$11$",
+    category: "order_of_operations"
+  },
+  {
+    q: "Evaluate: $(8 - 3) \\times 2$",
+    options: ["$16$", "$10$", "$6$", "None of the above"],
+    a: "$10$",
+    category: "order_of_operations"
+  },
+  {
+    q: "Solve: $6 + 4 \\div 2$",
+    options: ["$5$", "$10$", "$8$", "None of the above"],
+    a: "$8$",
+    category: "order_of_operations"
+  },
+  {
+    q: "Evaluate: $3 \\times (2 + 4)$",
+    options: ["$12$", "$6$", "$18$", "None of the above"],
+    a: "$18$",
+    category: "order_of_operations"
+  },
+  {
+    q: "Solve: $10 - 2 \\times 5$",
+    options: ["$40$", "$20$", "$0$", "None of the above"],
+    a: "$0$",
+    category: "order_of_operations"
+  },
+
+// ===================== WORKING WITH PARANTHESIS (5) =====================
+{
+  q: "Solve: $2(5 + 3)$",
+  options: ["$18$", "$16$", "$14$", "$12$"],
+  a: "$16$",
+  category: "parenthesis"
+},
+{
+  q: "Evaluate: $(2 + 4)(5 - 3)$",
+  options: ["$12$", "$16$", "$18$", "$20$"],
+  a: "$12$",
+  category: "parenthesis"
+},
+{
+    q: "$-3(2 - 7) + 1$ equals",
+    options: ["$-6 + 21 + 1$", "$-3(-5) + 1$", "$15 + 1$", "All of the above"],
+    a: "All of the above",
+    category: "parenthesis"
+},
+{
+    q: "Evaluate: $(2 + 3)^2 - 5$",
+    options: ["$25$", "$10$", "$20$", "$15$"],
+    a: "$20$",
+    category: "parenthesis"
+},
+{
+    q: "Evaluate: $2((3 + 5) - 4)$",
+    options: ["$8$", "$12$", "$16$", "$4$"],
+    a: "$8$",
+    category: "parenthesis"
+},
+  // ===================== COORDINATE SYSTEM (5) =====================
+  {
+    q: "What is the coordinate of the origin in the coordinate system?",
+    options: ["$(1,1)$", "$(0,0)$", "$(0,1)$", "None of the above"],
+    a: "$(0,0)$",
+    category: "coordinate_system"
+  },
+  {
+    q: "Which point has $x = 4$?",
+    options: ["$(2,4)$", "$(4,2)$", "$(0,4)$", "None of the above"],
+    a: "$(4,2)$",
+    category: "coordinate_system"
+  },
+  {
+    q: "Which of the following lies in quadrant II?",
+    options: ["$(2,3)$", "$(-2,3)$", "$(3,-2)$", "None of the above"],
+    a: "$(-2,3)$",
+    category: "coordinate_system"
+  },
+  {
+    q: "Which point among the following lies on the y-axis?",
+    options: ["$(5,0)$", "$(0,5)$", "$(1,1)$", "None of the above"],
+    a: "$(0,5)$",
+    category: "coordinate_system"
+  },
+  {
+    q: "Which of the following coordinates lie below the x-axis and to the left of the y-axis?",
+    options: ["$(2,-3)$", "$(-3,2)$", "$(-1,-2)$", "None of the above"],
+    a: "$(-1,-2)$",
+    category: "coordinate_system"
+  },
+
+  // ===================== EXPONENTS (6) =====================
+  
+  {
+    q: "What is $2^4$?",
+    options: ["$8$", "$16$", "$4$", "None of the above"],
+    a: "$16$",
+    category: "exponents"
+  },
+  {
+    q: "Simplify: $5^0$",
+    options: ["$0$", "$1$", "$5$", "None of the above"],
+    a: "$1$",
+    category: "exponents"
+  },
+  {
+    q: "What is $10^1$?",
+    options: ["$1$", "$10$", "$100$", "None of the above"],
+    a: "$10$",
+    category: "exponents"
+  },
+  {
+    q: "Evaluate: $2^3 \\times 2^2$",
+    options: ["$2^5$", "$16$", "$32$", "None of the above"],
+    a: "$2^5$",
+    category: "exponents"
+  },
+  {
+    q: "What is $2^{-3}$?",
+    options: ["$\\frac{1}{8}$", "$-6$", "$8$", "None of the above"],
+    a: "$\\frac{1}{8}$",
+    category: "exponents"
+  },
+
+// ===================== RADICALS =====================
+{ 
+  q: "What is $\\sqrt{16}$?", 
+  options: ["$4$", "$8$", "$16$", "$2$"], 
+  a: "$4$", 
+  category: "radicals" 
+},
+{ 
+  q: "Simplify $\\sqrt{25 \\times 16}$", 
+  options: ["$20$", "$10$", "$30$", "$80$"], 
+  a: "$20$", 
+  category: "radicals" 
+},
+{ 
+  q: "What is $\\sqrt{81/9}$?", 
+  options: ["$3$", "$9$", "$6$", "$2$"], 
+  a: "$3$", 
+  category: "radicals" 
+},
+{ 
+  q: "What is $\\sqrt{49}$?", 
+  options: ["$5$", "$7$", "$9$", "$3$"], 
+  a: "$7$", 
+  category: "radicals" 
+},
+{ 
+  q: "Which of these is a perfect square?", 
+  options: ["$14$", "$16$", "$18$", "$20$"], 
+  a: "$16$", 
+  category: "radicals" 
+},
+
+  // ===================== SIMPLIFYING EXPRESSIONS (5) =====================
+  {
+    q: "Simplify: $x + x$",
+    options: ["$x$", "$2x$", "$x^2$", "None of the above"],
+    a: "$2x$",
+    category: "expressions"
+  },
+  {
+    q: "Simplify: $3a + 2a$",
+    options: ["$5a$", "$6a$", "$a$", "None of the above"],
+    a: "$5a$",
+    category: "expressions"
+  },
+  {
+    q: "Simplify: $2(x + 3)$",
+    options: ["$2x + 3$", "$2x + 6$", "$x + 6$", "None of the above"],
+    a: "$2x + 6$",
+    category: "expressions"
+  },
+  {
+    q: "Simplify: $5y - 2y$",
+    options: ["$3y$", "$7y$", "$y$", "None of the above"],
+    a: "$3y$",
+    category: "expressions"
+  },
+  {
+    q: "Simplify: $4(x+1) - x$",
+    options: ["$3x + 4$", "$4x + 1$", "$x + 4$", "None of the above"],
+    a: "$3x + 4$",
+    category: "expressions"
+  },
+
+// ===================== FACTORIZATION =====================
+{ 
+  q: "Factorize: $x^2 + 5x$", 
+  options: ["$x(x + 5)$", "$x^2 + 5$", "$x(x + 2)$", "$x(x + 3)$"], 
+  a: "$x(x + 5)$", 
+  category: "factorization" 
+},
+{ 
+  q: "Factorize: $x^2 - 9$", 
+  options: ["$(x + 3)(x - 3)$", "$(x + 5)(x - 5)$", "$(x + 2)(x - 3)$", "$(x - 2)(x + 4)$"], 
+  a: "$(x + 3)(x - 3)$", 
+  category: "factorization" 
+},
+{ 
+  q: "Factorize: $x^2 + 4x$", 
+  options: ["$x(x + 4)$", "$(x + 2)(x + 2)$", "$(x + 3)(x + 1)$", "$(x + 5)(x - 1)$"], 
+  a: "$x(x + 4)$", 
+  category: "factorization" 
+},
+{ 
+  q: "Factorize: $x^2 - 4x$", 
+  options: ["$x(x - 4)$", "$(x - 2)(x + 2)$", "$(x + 3)(x - 1)$", "$(x - 1)(x - 4)$"], 
+  a: "$x(x - 4)$", 
+  category: "factorization" 
+},
+{ 
+  q: "Factorize: $x^2 + 3x$", 
+  options: ["$x(x + 3)$", "$(x + 1)(x + 3)$", "$(x + 5)(x - 1)$", "$x(x + 1)$"], 
+  a: "$x(x + 3)$", 
+  category: "factorization" 
+},
+
+  // ===================== LOGARITHMS (5) =====================
+  {
+    q: "Compute: $\\log(100)$",
+    options: ["$1$", "$2$", "$10$", "None of the above"],
+    a: "$2$",
+    category: "logarithms"
+  },
+  {
+    q: "Compute: $\\log_2(8)$",
+    options: ["$2$", "$3$", "$4$", "None of the above"],
+    a: "$3$",
+    category: "logarithms"
+  },
+  {
+    q: "Compute: $\\log_3(9)$",
+    options: ["$2$", "$3$", "$9$", "None of the above"],
+    a: "$2$",
+    category: "logarithms"
+  },
+  {
+    q: "Compute: $\\log(1)$",
+    options: ["$0$", "$1$", "Undefined", "None of the above"],
+    a: "$0$",
+    category: "logarithms"
+  },
+  {
+    q: "Compute: $\\log_5(25)$",
+    options: ["$2$", "$5$", "$25$", "None of the above"],
+    a: "$2$",
+    category: "logarithms"
+  },
+  
+  // ===================== FUNCTIONS (5) =====================
+  {
+    q: "What is a function?",
+    options: [
+      "Each input has exactly one output",
+      "Each output has exactly one input",
+      "Graphs must be straight lines",
+      "None of the above"
+    ],
+    a: "Each input has exactly one output",
+    category: "functions"
+  },
+  {
+    q: "Is $y = 2x + 3$ a function?",
+    options: ["Yes", "No", "Sometimes", "Undefined"],
+    a: "Yes",
+    category: "functions"
+  },
+  {
+    q: "Which of the following functions is linear?",
+    options: ["$y=x^2$", "$y=2x+1$", "$y=\\frac{1}{x}$", "None of the above"],
+    a: "$y=2x+1$",
+    category: "functions"
+  },
+  {
+    q: "Which function type has a U-shaped graph?",
+    options: ["Linear", "Quadratic", "Constant", "None of the above"],
+    a: "Quadratic",
+    category: "functions"
+  },
+  {
+    q: "How many solutions do we have for $x^2 = 9$?",
+    options: ["$1$", "$2$", "$3$", "None"],
+    a: "$2$",
+    category: "functions"
+  }
+
+];
+
+const urlParams = new URLSearchParams(window.location.search);
+  const category = urlParams.get("category");
+  let answersSubmitted = false;
+
+  if (!category) {
+    document.getElementById("quiz-container").innerHTML = "<p>Error: No category selected.</p>";
+    return;
+  }
+
+  const categoryQuestions = allQuestions.filter(q => q.category === category);
+  
+  if (categoryQuestions.length === 0) {
+    document.getElementById("quiz-container").innerHTML = "<p>No questions found for category: " + category + "</p>";
+    return;
+  }
+
+  document.getElementById("category-title").textContent = `Category: ${category.replace(/_/g, " ")}`;
+  const container = document.getElementById("quiz-container");
+  const resultsDiv = document.getElementById("category-results");
+
+  categoryQuestions.forEach((q, i) => {
+    const div = document.createElement("div");
+    div.classList.add("question");
+    div.innerHTML = `<p>${q.q}</p>` + 
+        q.options.map((opt) => 
+            `<label><input type="radio" name="q${i}" value="${opt}"> ${opt}</label>`
+        ).join("");
+    // Ensures questions appear BEFORE the results box in the grid
+    container.insertBefore(div, resultsDiv);
+  });
+
+  if (window.renderMathInElement) {
+    renderMathInElement(document.body, {
+      delimiters: [{left: '$', right: '$', display: false}],
+      throwOnError: false
+    });
+  }
+
+  window.submitAnswers = () => {
+    let score = 0;
+    categoryQuestions.forEach((q, i) => {
+      const selected = document.querySelector(`input[name="q${i}"]:checked`);
+      if (selected && selected.value === q.a) score++;
+    });
+
+    localStorage.setItem(category, score);
+    answersSubmitted = true;
+    document.getElementById("message").textContent = "Answers submitted! Navigation unlocked.";
+    
+    resultsDiv.style.display = "flex";
+    document.getElementById("mastery-level").textContent = getMasteryLevel(score, categoryQuestions.length);
+
+    const ctx = document.getElementById("categoryPie").getContext("2d");
+    if (window.categoryChart) window.categoryChart.destroy();
+    window.categoryChart = new Chart(ctx, {
+      type: "pie",
+      data: {
+        labels: ["Correct", "Incorrect"],
+        datasets: [{
+          data: [score, categoryQuestions.length - score],
+          backgroundColor: ["#2ecc71", "#e74c3c"]
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: { legend: { display: false } }
+      }
+    });
+  };
+
+  function getMasteryLevel(correct, total) {
+    const percent = (correct / total) * 100;
+    if (percent >= 85) return "Mastery level: Excellent ✅";
+    if (percent >= 70) return "Mastery level: Good 👍";
+    if (percent >= 50) return "Mastery level: Developing ⚠️";
+    return "Mastery level: Needs improvement ❌";
+  }
+
+  const nextBtn = document.getElementById("next-category-btn");
+  const prevBtn = document.getElementById("prev-category-btn");
+  const currentIndex = categories.indexOf(category);
+
+  prevBtn.onclick = () => {
+    if (!answersSubmitted) { alert("Please click 'Submit Answers' first."); return; }
+    if (currentIndex > 0) window.location.href = `category.html?category=${categories[currentIndex - 1]}`;
+  };
+
+  nextBtn.onclick = () => {
+    if (!answersSubmitted) { alert("Please click 'Submit Answers' first."); return; }
+    if (currentIndex < categories.length - 1) {
+      window.location.href = `category.html?category=${categories[currentIndex + 1]}`;
+    } else {
+      window.location.href = "results.html";
+    }
+  };
+});
+</script>
+</body>
+</html>
