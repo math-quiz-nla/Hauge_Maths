@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Test – Category</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --primary: #27ae60;
+      --primary-light: #d5f5e3;
+      --primary-dark: #219150;
+      --bg: #ffffff;
+      --card: rgba(255, 255, 255, 0.8);
+      --shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Inter", sans-serif;
+      margin: 0;
+      padding: 2rem;
+      background: var(--bg);
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    h1 { margin-bottom: 1.5rem; text-align: center; }
+    #quiz-wrapper { width: 100%; max-width: 1200px; }
+    
+    #quiz-container { 
+      display: grid; 
+      gap: 1.5rem; 
+      width: 100%; 
+    }
+    
+    @media (min-width: 601px) { 
+      #quiz-container { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); } 
+    }
+    @media (max-width: 600px) {
+      body { padding: 1rem; }
+      h1 { font-size: 1.5rem; }
+      #quiz-container { grid-template-columns: 1fr; }
+    }
+
+    .question, #category-results {
+      padding: 1.5rem;
+      border-radius: 1rem;
+      box-shadow: var(--shadow);
+      border: 2px solid var(--primary);
+      backdrop-filter: blur(5px);
+      background: linear-gradient(to right bottom, rgba(255, 255, 255, 0.7), rgba(213, 245, 227, 0.8));
+    }
+
+    .question { transition: transform 0.2s; }
+    .question:hover { transform: translateY(-4px); }
+    
+    #category-results { 
+      display: none; 
+      text-align: center; 
+      flex-direction: column;
+      justify-content: center;
+      min-height: 300px;
+    }
+
+    label { display: block; margin: 0.6rem 0; line-height: 1.4; min-height: 48px; cursor: pointer; }
+    input[type="radio"] { margin-right: 0.5rem; accent-color: var(--primary); }
+    
+    .button-container { display: flex; justify-content: center; gap: 1rem; margin: 2rem auto 0; max-width: 1200px; width: 100%; }
+    button { padding: 0.75rem 1.5rem; font-size: 1rem; background: var(--primary); color: #fff; border: none; border-radius: 0.75rem; cursor: pointer; transition: background 0.2s; }
+    button:hover { background: var(--primary-dark); }
+    
+    #message { margin-top: 1rem; font-weight: 600; text-align: center; }
+
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #111827; --card: rgba(31, 41, 55, 0.8); --shadow: none; --primary-light: #1a3a2a; }
+      .question, #category-results { background: linear-gradient(to right bottom, rgba(31, 41, 55, 0.7), rgba(26, 58, 42, 0.8)); border: 2px solid var(--primary); }
+    }
+  </style>
+</head>
+<body>
+  <h1 id="category-title">Quiz</h1>
+  
+  <div id="quiz-wrapper">
+    <div id="quiz-container">
+      <div id="category-results">
+        <h3>Kategoriresultat</h3>
+        <canvas id="categoryPie"></canvas>
+        <p id="mastery-level" style="font-weight:bold; margin-top:10px;"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="button-container">
+    <button id="prev-category-btn">Forrige kategori</button>
+    <button onclick="submitAnswers()">Send inn svar</button>
+    <button id="next-category-btn">Neste kategori</button>
+  </div>
+  
+  <p id="message"></p>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const categories = ["number_system", "fractions", "percentages", "order_of_operations", "parenthesis", "coordinate_system", "exponents", "radicals", "expressions", "factorization", "logarithms", "functions"];
+  const categoryNames = { "number_system": "tallsystemet", "fractions": "Brøk", "percentages": "Prosent", "order_of_operations": "Regnerekkefølge", "parenthesis": "Parenteser", "coordinate_system": "Koordinatsystemet", "exponents": "Potenser", "radicals": "Røtter", "expressions": "Forenkling", "factorization": "Faktorisering", "logarithms": "Logaritmer", "functions": "Funksjoner" };
+
+
+    const allQuestions = [
+    // ===================== number_system (number_system) =====================
+    {
+      q: "Hvilket av følgende er et heltall?",
+      options: ["$\\frac{3}{4}$", "$-3$", "$\\sqrt{2}$", "Ingen"],
+      a: "$-3$",
+      category: "number_system"
+    },
+    {
+      q: "Hvordan kan man skrive 7 000 000 i standardform?",
+      options: ["$7 \\cdot 10^{-7}$", "$7 \\cdot 10^{-6}$", "$7 \\cdot 10^6$", "Ingen"],
+      a: "$7 \\cdot 10^6$",
+      category: "number_system"
+    },
+    {
+      q: "Hvilket av disse er et irrasjonalt tall?",
+      options: ["$\\sqrt{3}$", "$\\frac{2}{5}$", "$0.25$", "Ingen"],
+      a: "$\\sqrt{3}$",
+      category: "number_system"
+    },
+    {
+      q: "Hvilket av følgende tilsvarer $4 \\frac{2}{5}$?",
+      options: ["$\\frac{22}{5}$", "$\\frac{8}{5}$", "$0.75$", "Ingen"],
+      a: "$\\frac{22}{5}$",
+      category: "number_system"
+    },
+    {
+      q: "Hvilket av følgende er et naturlige tall?",
+      options: ["$-1$", "$\\frac{1}{2}$", "$0$", "Ingen"],
+      a: "Ingen",
+      category: "number_system"
+    },
+
+    // ===================== BRØK (fractions) =====================
+    {
+      q: "Regn ut: $\\frac{1}{2} + \\frac{1}{4}$",
+      options: ["$\\frac{1}{6}$", "$\\frac{3}{4}$", "$\\frac{2}{6}$", "Ingen"],
+      a: "$\\frac{3}{4}$",
+      category: "fractions"
+    },
+    {
+      q: "Regn ut: $\\frac{5}{3} - 8$",
+      options: ["$\\frac{2}{3}$", "$\\frac{-19}{3}$", "$\\frac{6}{4}$", "Ingen"],
+      a: "$\\frac{-19}{3}$",
+      category: "fractions"
+    },
+    {
+      q: "Regn ut: $\\frac{2}{3} \\times \\frac{3}{5}$",
+      options: ["$\\frac{2}{5}$", "$\\frac{5}{15}$", "$\\frac{3}{5}$", "Ingen"],
+      a: "$\\frac{2}{5}$",
+      category: "fractions"
+    },
+    {
+      q: "Regn ut: $\\frac{3}{4} \\div \\frac{1}{2}$",
+      options: ["$\\frac{3}{8}$", "$\\frac{3}{2}$", "$\\frac{3}{4}$", "Ingen"],
+      a: "$\\frac{3}{2}$",
+      category: "fractions"
+    },
+    {
+      q: "Hvilket av følgende er lik $\\frac{1}{2}$?",
+      options: ["$\\frac{2}{4}$", "$\\frac{3}{6}$", "$\\frac{4}{8}$", "Alle"],
+      a: "Alle",
+      category: "fractions"
+    },
+
+    // ===================== PROSENT (percentages) =====================
+    {
+      q: "Hva er $50\\%$ av $80$?",
+      options: ["$30$", "$50$", "$40$", "Ingen"],
+      a: "$40$",
+      category: "percentages"
+    },
+    {
+      q: "Skrevet i prosent form, er $0.25$ lik",
+      options: ["$250\\%$", "$25\\%$", "$2.5\\%$", "Ingen"],
+      a: "$25\\%$",
+      category: "percentages"
+    },
+    {
+      q: "Hva er $10\\%$ av $200$?",
+      options: ["$10$", "$20$", "$15$", "Ingen"],
+      a: "$20$",
+      category: "percentages"
+    },
+    {
+      q: "Hvis vi Øker $100$ med $20\\%$ blir det.",
+      options: ["$110$", "$130$", "$120$", "Ingen"],
+      a: "$120$",
+      category: "percentages"
+    },
+    {
+      q: "Hvilket av følgende tilsvarer $75\\%$?",
+      options: ["$\\frac{1}{2}$", "$\\frac{3}{4}$", "$\\frac{2}{3}$", "Ingen"],
+      a: "$\\frac{3}{4}$",
+      category: "percentages"
+    },
+
+    // ===================== REGNEREKKEFØLGE (order_of_operations) =====================
+    {
+      q: "Regn ut: $5 + 2 \\times 3$",
+      options: ["$21$", "$7$", "$11$", "Ingen"],
+      a: "$11$",
+      category: "order_of_operations"
+    },
+    {
+      q: "regn ut: $(8 - 3) \\times 2$",
+      options: ["$16$", "$10$", "$6$", "Ingen"],
+      a: "$10$",
+      category: "order_of_operations"
+    },
+    {
+      q: "Regn ut: $6 + 4 \\div 2$",
+      options: ["$5$", "$10$", "$8$", "Ingen"],
+      a: "$8$",
+      category: "order_of_operations"
+    },
+    {
+      q: "Regn ut: $3 \\times (2 + 4)$",
+      options: ["$12$", "$6$", "$18$", "Ingen"],
+      a: "$18$",
+      category: "order_of_operations"
+    },
+    {
+      q: "Regn ut: $10 - 2 \\times 5$",
+      options: ["$40$", "$20$", "$0$", "Ingen"],
+      a: "$0$",
+      category: "order_of_operations"
+    },
+
+    // ===================== PARENTESER (parenthesis) =====================
+    {
+      q: "Regn ut: $2(5 + 3)$",
+      options: ["$18$", "$16$", "$14$", "$12$"],
+      a: "$16$",
+      category: "parenthesis"
+    },
+    {
+      q: "Regn ut: $(2 + 4)(5 - 3)$",
+      options: ["$12$", "$16$", "$18$", "$20$"],
+      a: "$12$",
+      category: "parenthesis"
+    },
+    {
+      q: "$-3(2 - 7) + 1$ er lik:",
+      options: ["$-6 + 21 + 1$", "$-3(-5) + 1$", "$15 + 1$", "Alle"],
+      a: "Alle",
+      category: "parenthesis"
+    },
+    {
+      q: "Regn ut: $(2 + 3)^2 - 5$",
+      options: ["$25$", "$10$", "$20$", "$15$"],
+      a: "$20$",
+      category: "parenthesis"
+    },
+    {
+      q: "Regn ut: $2((3 + 5) - 4)$",
+      options: ["$8$", "$12$", "$16$", "$4$"],
+      a: "$8$",
+      category: "parenthesis"
+    },
+
+    // ===================== KOORDINATSYSTEMET (coordinate_system) =====================
+    {
+      q: "Hva er koordinater til origo?",
+      options: ["$(1,1)$", "$(0,0)$", "$(0,1)$", "Ingen"],
+      a: "$(0,0)$",
+      category: "coordinate_system"
+    },
+    {
+      q: "Hvilket punkt har $x = 4$?",
+      options: ["$(2,4)$", "$(4,2)$", "$(0,4)$", "Ingen"],
+      a: "$(4,2)$",
+      category: "coordinate_system"
+    },
+    {
+      q: "Hvilket av følgende ligger i andre kvadrant (II)?",
+      options: ["$(2,3)$", "$(-2,3)$", "$(3,-2)$", "Ingen"],
+      a: "$(-2,3)$",
+      category: "coordinate_system"
+    },
+    {
+      q: "Hvilket av følgende punkter ligger på y-aksen?",
+      options: ["$(5,0)$", "$(0,5)$", "$(1,1)$", "Ingen"],
+      a: "$(0,5)$",
+      category: "coordinate_system"
+    },
+    {
+      q: "Hvilke koordinater ligger under x-aksen og til venstre for y-aksen?",
+      options: ["$(2,-3)$", "$(-3,2)$", "$(-1,-2)$", "Ingen"],
+      a: "$(-1,-2)$",
+      category: "coordinate_system"
+    },
+
+    // ===================== POTENSER (exponents) =====================
+    {
+      q: "Regn ut $2^4$?",
+      options: ["$8$", "$16$", "$4$", "Ingen"],
+      a: "$16$",
+      category: "exponents"
+    },
+    {
+      q: "Regn ut: $5^0$",
+      options: ["$0$", "$1$", "$5$", "Ingen"],
+      a: "$1$",
+      category: "exponents"
+    },
+    {
+      q: "Regn ut $10^1$?",
+      options: ["$1$", "$10$", "$100$", "Ingen"],
+      a: "$10$",
+      category: "exponents"
+    },
+    {
+      q: "Regn ut $2^3 \\times 2^2$",
+      options: ["$2^5$", "$16$", "$32$", "Ingen"],
+      a: "$2^5$",
+      category: "exponents"
+    },
+    {
+      q: "Regn ut $2^{-3}$?",
+      options: ["$\\frac{1}{8}$", "$-6$", "$8$", "Ingen"],
+      a: "$\\frac{1}{8}$",
+      category: "exponents"
+    },
+
+    // ===================== KVADRATRØT (radicals) =====================
+    { 
+      q: "Beregn $\\sqrt{16}$?", 
+      options: ["$4$", "$8$", "$16$", "$2$"], 
+      a: "$4$", 
+      category: "radicals" 
+    },
+    { 
+      q: "Beregn $\\sqrt{25 \\times 16}$", 
+      options: ["$\\sqrt{25} \\times \\sqrt{16}$", "$10$", "$30$", "$80$"], 
+      a: "$\\sqrt{25} \\times \\sqrt{16}$", 
+      category: "radicals" 
+    },
+    { 
+      q: "Hva er $\\sqrt{81/9}$?", 
+      options: ["$\\sqrt{81}/3$", "9/\\sqrt{9}", "$\\sqrt{81}/\\sqrt{9}$", "$Alle$"], 
+      a: "$Alle$", 
+      category: "radicals" 
+    },
+    { 
+      q: "Beregn er $(\\sqrt{49})^2$?", 
+      options: ["$5$", "$49$", "$9$", "$3$"], 
+      a: "$49$", 
+      category: "radicals" 
+    },
+    { 
+      q: "Hvilket av disse er et kvadrattall?", 
+      options: ["$14$", "$16$", "$18$", "$20$"], 
+      a: "$16$", 
+      category: "radicals" 
+    },
+
+    // ===================== FORENKLING AV UTTRYKK (expressions) =====================
+    {
+      q: "Forenkle: $x + x$",
+      options: ["$x$", "$2x$", "$x^2$", "Ingen"],
+      a: "$2x$",
+      category: "expressions"
+    },
+    {
+      q: "Forenkle: $3a + 2a$",
+      options: ["$5a$", "$6a$", "$a$", "Ingen"],
+      a: "$5a$",
+      category: "expressions"
+    },
+    {
+      q: "Forenkle: $2(x + 3)$",
+      options: ["$2x + 3$", "$2x + 6$", "$x + 6$", "Ingen"],
+      a: "$2x + 6$",
+      category: "expressions"
+    },
+    {
+      q: "Forenkle: $5y - 2y$",
+      options: ["$3y$", "$7y$", "$y$", "Ingen"],
+      a: "$3y$",
+      category: "expressions"
+    },
+    {
+      q: "Forenkle: $4(x+1) - x$",
+      options: ["$3x + 4$", "$4x + 1$", "$x + 4$", "Ingen"],
+      a: "$3x + 4$",
+      category: "expressions"
+    },
+
+    // ===================== FAKTORISERING (factorization) =====================
+    { 
+      q: "Faktoriser: $x^2 + 5x$", 
+      options: ["$x(x + 5)$", "$x^2 + 5$", "$x(x + 2)$", "$x(x + 3)$"], 
+      a: "$x(x + 5)$", 
+      category: "factorization" 
+    },
+    { 
+      q: "Faktoriser: $x^2 - 9$", 
+      options: ["$(x + 3)(x - 3)$", "$(x + 5)(x - 5)$", "$(x + 2)(x - 3)$", "$(x - 2)(x + 4)$"], 
+      a: "$(x + 3)(x - 3)$", 
+      category: "factorization" 
+    },
+    { 
+      q: "Faktoriser: $x^2 + 4x$", 
+      options: ["$x(x + 4)$", "$(x + 2)(x + 2)$", "$(x + 3)(x + 1)$", "$(x + 5)(x - 1)$"], 
+      a: "$x(x + 4)$", 
+      category: "factorization" 
+    },
+    { 
+      q: "Faktoriser: $x^2 - 4x$", 
+      options: ["$x(x - 4)$", "$(x - 2)(x + 2)$", "$(x + 3)(x - 1)$", "$(x - 1)(x - 4)$"], 
+      a: "$x(x - 4)$", 
+      category: "factorization" 
+    },
+    { 
+      q: "Faktoriser: $x^2 + 3x$", 
+      options: ["$x(x + 3)$", "$(x + 1)(x + 3)$", "$(x + 5)(x - 1)$", "$x(x + 1)$"], 
+      a: "$x(x + 3)$", 
+      category: "factorization" 
+    },
+
+    // ===================== LOGARITMER (logarithms) =====================
+    {
+      q: "Beregn: $\\log(100)$",
+      options: ["$1$", "$2$", "$10$", "Ingen"],
+      a: "$2$",
+      category: "logarithms"
+    },
+    {
+      q: "Beregn: $\\log_2(8)$",
+      options: ["$2$", "$3$", "$4$", "Ingen"],
+      a: "$3$",
+      category: "logarithms"
+    },
+    {
+      q: "Beregn: $\\log_3(9)$",
+      options: ["$2$", "$3$", "$9$", "Ingen"],
+      a: "$2$",
+      category: "logarithms"
+    },
+    {
+      q: "Beregn: $\\log(1)$",
+      options: ["$0$", "$1$", "Udefinert", "Ingen"],
+      a: "$0$",
+      category: "logarithms"
+    },
+    {
+      q: "Beregn: $\\log_5(25)$",
+      options: ["$2$", "$5$", "$25$", "Ingen"],
+      a: "$2$",
+      category: "logarithms"
+    },
+    
+    // ===================== FUNKSJONER (functions) =====================
+    {
+      q: "Hva er en funksjon?",
+      options: [
+        "Hver inngangsverdi har nøyaktig én utgangsverdi",
+        "Hver utgangsverdi har nøyaktig én inngangsverdi",
+        "Grafer må alltid være rettlinjede",
+        "Ingen"
+      ],
+      a: "Hver inngangsverdi har nøyaktig én utgangsverdi",
+      category: "functions"
+    },
+    {
+      q: "Er $y = 2x + 3$ en funksjon?",
+      options: ["Ja", "Nei", "Noen ganger", "Udefinert"],
+      a: "Ja",
+      category: "functions"
+    },
+    {
+      q: "Hvilken av disse er en lineær funksjon?",
+      options: ["$y=x^2$", "$y=2x+1$", "$y=\\frac{1}{x}$", "Ingen"],
+      a: "$y=2x+1$",
+      category: "functions"
+    },
+    {
+      q: "Hvilken type av funksjon har en U-formet (parabel) graf?",
+      options: ["Lineær", "Kvadratiske", "Lineær", "Ingen"],
+      a: "Kvadratiske",
+      category: "functions"
+    },
+    {
+      q: "Hvor mange løsninger har vi for $x^2 = 9$?",
+      options: ["$1$", "$2$", "$3$", "Ingen"],
+      a: "$2$",
+      category: "functions"
+    }
+  ];
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const category = urlParams.get("category");
+  let answersSubmitted = false;
+  const categoryQuestions = allQuestions.filter(q => q.category === category);
+  
+  if (!category || categoryQuestions.length === 0) {
+    document.getElementById("quiz-container").innerHTML = "<p>Kategori ikke funnet.</p>";
+    return;
+  }
+
+  document.getElementById("category-title").textContent = `Kategori: ${categoryNames[category] || category}`;
+  const container = document.getElementById("quiz-container");
+  const resultsDiv = document.getElementById("category-results");
+
+  
+  categoryQuestions.forEach((q, i) => {
+    const div = document.createElement("div");
+    div.classList.add("question");
+    div.innerHTML = `
+      <p class="question-text"><strong>Spørsmål ${i + 1}:</strong> ${q.q}</p>
+      <div class="options-grid">
+        ${q.options.map(opt => `
+          <label class="option-label">
+            <input type="radio" name="q${i}" value="${opt}">
+            <span class="option-text">${opt}</span>
+          </label>
+        `).join("")}
+      </div>
+    `;
+    container.insertBefore(div, resultsDiv);
+  });
+
+  if (window.renderMathInElement) renderMathInElement(document.body, { delimiters: [{left: '$', right: '$', display: false}] });
+
+  window.submitAnswers = () => {
+    let score = 0;
+    categoryQuestions.forEach((q, i) => {
+      const selected = document.querySelector(`input[name="q${i}"]:checked`);
+      if (selected && selected.value === q.a) score++;
+    });
+    localStorage.setItem(category, score);
+    answersSubmitted = true;
+    document.getElementById("message").textContent = "Svar sendt! Navigasjon låst opp.";
+    resultsDiv.style.display = "flex";
+    document.getElementById("mastery-level").textContent = getMasteryLevel(score, categoryQuestions.length);
+    const ctx = document.getElementById("categoryPie").getContext("2d");
+    new Chart(ctx, { type: "pie", data: { labels: ["Riktig", "Feil"], datasets: [{ data: [score, categoryQuestions.length - score], backgroundColor: ["#2ecc71", "#e74c3c"] }] } });
+  };
+
+  function getMasteryLevel(correct, total) {
+    const percent = (correct / total) * 100;
+    if (percent >= 85) return "Mestringsnivå: Utmerket ✅";
+    if (percent >= 70) return "Mestringsnivå: Godt 👍";
+    if (percent >= 50) return "Mestringsnivå: Under utvikling ⚠️";
+    return "Mestringsnivå: Trenger forbedring ❌";
+  }
+
+  const currentIndex = categories.indexOf(category);
+  document.getElementById("prev-category-btn").onclick = () => {
+    if (!answersSubmitted) return alert("Vennligst trykk 'Send svar' først.");
+    if (currentIndex > 0) window.location.href = `kategori.html?category=${categories[currentIndex - 1]}`;
+  };
+  document.getElementById("next-category-btn").onclick = () => {
+    if (!answersSubmitted) return alert("Vennligst trykk 'Send svar' først.");
+    if (currentIndex < categories.length - 1) window.location.href = `kategori.html?category=${categories[currentIndex + 1]}`;
+    else window.location.href = "resultater.html";
+  };
+});
+</script>
+</body>
+</html>
