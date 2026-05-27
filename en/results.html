@@ -277,9 +277,34 @@ const barChart = new Chart(barCtx, {
   showRadarChart();
 
   // Suggest resources
-  const weakCategories = categories.filter((cat, index) => scores[index] < 3);
-  const weakLinks = weakCategories.map(cat => `<a href="https://www.khanacademy.org/search?page_search_query=${cat.replace("_", " ")}">${cat.replace("_", " ")}</a>`).join("<br>");
-  document.getElementById("weak-categories").innerHTML = `<h2>Resources to Improve Your Skills</h2>${weakLinks}`;
+  // Recommendation based on total score
+let recommendationHTML = "";
+
+if (totalScore < 35) {
+  recommendationHTML = `
+    <h2>Recommended Preparation</h2>
+    <p>
+      Based on your results, we <strong>strongly recommend</strong> that you take the preparatory mathematics course available on Canvas.
+    </p>
+    <p>
+      <a href="https://nla.instructure.com/courses/7034/pages/forkurs-i-matematikk" target="_blanktikk
+      </a>
+    </p>
+  `;
+} else {
+  recommendationHTML = `
+    <h2>Recommended Preparation</h2>
+    <p>
+      Your results indicate a solid foundation. However, we still recommend reviewing the preparatory course to refresh your skills. You can access the preparatory course at:
+    </p>
+    <p>
+      <a href="https://nla.instructure.com/courses/7034/pages/forkurs-i-matematikk"orkurs i matematikk
+      </a>
+    </p>
+  `;
+}
+
+document.getElementById("weak-categories").innerHTML = recommendationHTML;
 </script>
 </body>
 </html>
