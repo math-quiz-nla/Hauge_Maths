@@ -290,18 +290,38 @@ const barChart = new Chart(barCtx, {
   showRadarChart();
 
   // Suggest resources for ALL categories
-  const weakLinks = categories.map(cat => {
-    // 1. Henter det norske navnet til visning på siden
-    const displayName = categoryNamesMapped[cat] || cat.replace("_", " ");
-    
-    // 2. Gjør om system-ID ("order_of_operations") til engelsk søkeord ("order of operations")
-    const searchQuery = cat.replace(/_/g, " ");
-    
-    // 3. Returnerer lenken med engelsk søkestyrt parameter og norsk tekst
-    return `<a href="https://www.khanacademy.org/search?page_search_query=${encodeURIComponent(searchQuery)}">${displayName}</a>`;
-  }).join("<br>");
+  // Anbefaling basert på total poengsum
+let recommendationHTML = "";
 
-  document.getElementById("weak-categories").innerHTML = `<h2>Ressurser for å forbedre ferdighetene dine</h2>${weakLinks || '<p>Ingen kategorier tilgjengelig.</p>'}`;
+if (totalScore < 35) {
+  recommendationHTML = `
+    <h2>Anbefalt forberedelse</h2>
+    <p>
+      Basert på resultatene dine anbefaler vi <strong>sterkt</strong> at du tar forkurset i matematikk tilgjengelig på Canvas på.
+    </p>
+    <p>
+      <a href="https://nla.instructure.com/courses/7034/pages/forkurs-i-matematikk" target="_blank">
+        Forkurs i matematikk
+      </a>
+    </p>
+  `;
+} else {
+  recommendationHTML = `
+    <h2>Anbefalt forberedelse</h2>
+    <p>
+      Resultatene dine tyder på at du har et godt grunnlag. Likevel anbefaler vi at du går gjennom forkurset for å repetere og styrke ferdighetene dine.Forkurset er tilgjengelig på Canvas på.
+    </p>
+    <p>
+      <a href="https://nla.instructure.com/courses/7034/pages/forkurs-i-matematikk" target="_blank">
+        Forkurs i matematikk
+      </a>
+    </p>
+  `;
+}
+
+document.getElementById("weak-categories").innerHTML = recommendationHTML;
+``
+
 </script>
 </body>
 </html>
