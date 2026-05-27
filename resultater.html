@@ -289,15 +289,15 @@ const barChart = new Chart(barCtx, {
   // Show radar by default
   showRadarChart();
 
-  // Suggest resources for ALL categories
   // Anbefaling basert på total poengsum
+// Anbefaling basert på total poengsum
 let recommendationHTML = "";
 
 if (totalScore < 35) {
   recommendationHTML = `
     <h2>Anbefalt forberedelse</h2>
     <p>
-      Basert på resultatene dine anbefaler vi <strong>sterkt</strong> at du tar forkurset i matematikk tilgjengelig på Canvas på.
+      Basert på resultatene dine anbefaler vi <strong>sterkt</strong> at du tar forkurset i matematikk før du går videre.
     </p>
     <p>
       <a href="https://nla.instructure.com/courses/7034/pages/forkurs-i-matematikk" target="_blank">
@@ -309,7 +309,7 @@ if (totalScore < 35) {
   recommendationHTML = `
     <h2>Anbefalt forberedelse</h2>
     <p>
-      Resultatene dine tyder på at du har et godt grunnlag. Likevel anbefaler vi at du går gjennom forkurset for å repetere og styrke ferdighetene dine.Forkurset er tilgjengelig på Canvas på.
+      Resultatene dine tyder på at du har et godt grunnlag. Likevel anbefaler vi at du går gjennom forkurset for å repetere og styrke ferdighetene dine.
     </p>
     <p>
       <a href="https://nla.instructure.com/courses/7034/pages/forkurs-i-matematikk" target="_blank">
@@ -320,7 +320,6 @@ if (totalScore < 35) {
 }
 
 document.getElementById("weak-categories").innerHTML = recommendationHTML;
-``
 
 </script>
 </body>
