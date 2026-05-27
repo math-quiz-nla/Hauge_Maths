@@ -196,19 +196,15 @@
   </div>
 
   <script>
-    const toggle = document.getElementById('lang-toggle');
-    const currentPath = window.location.pathname;
-    
-    // Set initial state (unchecked for Norwegian version)
-    toggle.checked = false;
-    
-    toggle.addEventListener('change', () => {
-      if (!toggle.checked) {
-        window.location.href = 'index.html'; // go to Norwegian version
-      } else {
-        window.location.href = 'en/index-en.html'; // go to English version
-      }
-    });
+const toggle = document.getElementById('lang-toggle');
+
+toggle.addEventListener('change', () => {
+  if (toggle.checked) {
+    window.location.href = 'index-en.html';
+  } else {
+    window.location.href = 'index.html';
+  }
+});
   </script>
 </body>
 </html>
