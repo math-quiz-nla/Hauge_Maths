@@ -123,8 +123,8 @@
       <div class="low">0‑10 Novice</div>
       <div class="basic">11‑22 Basic</div>
       <div class="intermediate">23‑34 Intermediate</div>
-      <div class="advanced">35‑45 Advanced</div>
-      <div class="expert">46‑60 Expert</div>
+      <div class="advanced">35‑47 Advanced</div>
+      <div class="expert">48‑60 Expert</div>
     </div>
     <div class="chart-toggle">
       <button onclick="showRadarChart()">Radar Chart</button>
@@ -154,7 +154,7 @@
   } else if (totalScore <= 34) {
     color = 'rgba(39, 174, 96, 1)';
     bgColor = 'rgba(39, 174, 96, 0.2)';
-  } else if (totalScore <= 45) {
+  } else if (totalScore <= 47) {
     color = 'rgba(41, 128, 185, 1)';
     bgColor = 'rgba(41, 128, 185, 0.2)';
   } else {
@@ -166,7 +166,7 @@ const getColor = (score, alpha = 1) => {
   if (score <= 10) return `rgba(231, 76, 60, ${alpha})`;      // Novice
   if (score <= 22) return `rgba(243, 156, 18, ${alpha})`;     // Basic
   if (score <= 34) return `rgba(39, 174, 96, ${alpha})`;      // Intermediate
-  if (score <= 45) return `rgba(41, 128, 185, ${alpha})`;     // Advanced
+  if (score <= 47) return `rgba(41, 128, 185, ${alpha})`;     // Advanced
   return `rgba(142, 68, 173, ${alpha})`;                      // Expert
 };
 
@@ -284,7 +284,7 @@ if (totalScore < 35) {
   recommendationHTML = `
     <h2>Recommended Preparation</h2>
     <p>
-      Based on your results, we <strong>strongly recommend</strong> that you take the preparatory mathematics course available on Canvas.
+      Based on your results, we <strong>strongly recommend</strong> that you take the preparatory mathematics course available on Canvas at:
     </p>
     <p>
       <a href="https://nla.instructure.com/courses/7034/pages/forkurs-i-matematikk" target="_blanktikk
