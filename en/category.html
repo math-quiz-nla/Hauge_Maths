@@ -527,15 +527,25 @@ const urlParams = new URLSearchParams(window.location.search);
   const resultsDiv = document.getElementById("category-results");
 
   categoryQuestions.forEach((q, i) => {
-    const div = document.createElement("div");
-    div.classList.add("question");
-    div.innerHTML = `<p>${q.q}</p>` + 
-        q.options.map((opt) => 
-            `<label><input type="radio" name="q${i}" value="${opt}"> ${opt}</label>`
-        ).join("");
-    // Ensures questions appear BEFORE the results box in the grid
-    container.insertBefore(div, resultsDiv);
-  });
+  const div = document.createElement("div");
+  div.classList.add("question");
+
+  div.innerHTML = `
+    <p class="question-text">
+      <strong>${i + 1}.</strong> ${q.q}
+    </p>
+    <div class="options-grid">
+      ${q.options.map(opt => `
+        <label class="option-label">
+          <input type="radio" name="q${i}" value="${opt}">
+          <span class="option-text">${opt}</span>
+        </label>
+      `).join("")}
+    </div>
+  `;
+
+  container.insertBefore(div, resultsDiv);
+});
 
   if (window.renderMathInElement) {
     renderMathInElement(document.body, {
