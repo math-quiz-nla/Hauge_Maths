@@ -508,19 +508,14 @@ document.addEventListener("DOMContentLoaded", function () {
 const urlParams = new URLSearchParams(window.location.search);
   const category = urlParams.get("category");
   let answersSubmitted = false;
-
+  
+  const categoryQuestions = allQuestions.filter(q => q.category === category);
+  
   if (!category|| categoryQuestions.length === 0) {
     document.getElementById("quiz-container").innerHTML = "<p>Error: No category selected.</p>";
     return;
   }
-
-  const categoryQuestions = allQuestions.filter(q => q.category === category);
   
-  if (categoryQuestions.length === 0) {
-    document.getElementById("quiz-container").innerHTML = "<p>No questions found for category: " + category + "</p>";
-    return;
-  }
-
   document.getElementById("category-title").textContent = `Category: ${category}`;
   const container = document.getElementById("quiz-container");
   const resultsDiv = document.getElementById("category-results");
