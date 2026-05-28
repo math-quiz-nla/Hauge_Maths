@@ -106,7 +106,6 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-  // FIXED: Changed "order_operations" to "order_of_operations" to match question data
   const categories = ["number_system", "fractions", "percentages", "order_of_operations", "parenthesis", "coordinate_system", "exponents", "radicals", "expressions", "factorization", "logarithms", "functions"];
   
   const allQuestions = [
@@ -359,9 +358,9 @@ document.addEventListener("DOMContentLoaded", function () {
   category: "radicals" 
 },
 { 
-  q: "What is $\\sqrt{49}$?", 
-  options: ["$5$", "$7$", "$9$", "$3$"], 
-  a: "$7$", 
+  q: "What is $(\\sqrt{49})^2$?", 
+  options: ["$5$", "$49$", "$9$", "$3$"], 
+  a: "$49$", 
   category: "radicals" 
 },
 { 
@@ -522,7 +521,7 @@ const urlParams = new URLSearchParams(window.location.search);
     return;
   }
 
-  document.getElementById("category-title").textContent = `Category: ${categoryNames[category] || category}`;
+  document.getElementById("category-title").textContent = `Category: ${category}`;
   const container = document.getElementById("quiz-container");
   const resultsDiv = document.getElementById("category-results");
 
