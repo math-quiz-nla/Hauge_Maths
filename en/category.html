@@ -107,7 +107,7 @@
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   // FIXED: Changed "order_operations" to "order_of_operations" to match question data
-  const categories = ["number_system", "fractions", "percentages", "order_of_operations", "parenthesis", "coordinate_system", "exponents", "expressions", "logarithms", "functions"];
+  const categories = ["number_system", "fractions", "percentages", "order_of_operations", "parenthesis", "coordinate_system", "exponents", "radicals", "expressions", "factorization", "logarithms", "functions"];
   
   const allQuestions = [
  // ===================== NUMBER SYSTEM (5) =====================
@@ -348,8 +348,8 @@ document.addEventListener("DOMContentLoaded", function () {
 },
 { 
   q: "Simplify $\\sqrt{25 \\times 16}$", 
-  options: ["$20$", "$10$", "$30$", "$80$"], 
-  a: "$20$", 
+  options: ["$\\sqrt{25} \\times \\sqrt{16}$", "$10$", "$30$", "$80$"], 
+  a: "$\\sqrt{25} \\times \\sqrt{16}$", 
   category: "radicals" 
 },
 { 
@@ -510,7 +510,7 @@ const urlParams = new URLSearchParams(window.location.search);
   const category = urlParams.get("category");
   let answersSubmitted = false;
 
-  if (!category) {
+  if (!category|| categoryQuestions.length === 0) {
     document.getElementById("quiz-container").innerHTML = "<p>Error: No category selected.</p>";
     return;
   }
@@ -522,7 +522,7 @@ const urlParams = new URLSearchParams(window.location.search);
     return;
   }
 
-  document.getElementById("category-title").textContent = `Category: ${category.replace(/_/g, " ")}`;
+  document.getElementById("category-title").textContent = `Category: ${categoryNames[category] || category}`;
   const container = document.getElementById("quiz-container");
   const resultsDiv = document.getElementById("category-results");
 
