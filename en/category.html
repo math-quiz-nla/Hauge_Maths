@@ -516,7 +516,7 @@ const urlParams = new URLSearchParams(window.location.search);
     return;
   }
   
-  document.getElementById("category-title").textContent = `Category: ${category}`;
+  document.getElementById("category-title").textContent =`Category: ${category.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}`;
   const container = document.getElementById("quiz-container");
   const resultsDiv = document.getElementById("category-results");
 
