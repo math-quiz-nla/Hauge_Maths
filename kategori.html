@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Test – Category</title>
+  <title>Test – Kategori</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
@@ -31,7 +31,7 @@
       min-height: 100vh;
     }
     h1 { margin-bottom: 1.5rem; text-align: center; }
-    #quiz-wrapper { width: 100%; max-width: 1200px; }
+    #quiz-wrapper { width: 100%; max-width: 1200px; display: flex; flex-direction: column; gap: 1.5rem; }
     
     #quiz-container { 
       display: grid; 
@@ -58,13 +58,12 @@
     }
 
     .correct-answer {
-    background: rgba(46, 204, 113, 0.2);
+      background: rgba(46, 204, 113, 0.2);
     }
 
     .wrong-answer {
-    background: rgba(231, 76, 60, 0.2);
+      background: rgba(231, 76, 60, 0.2);
     }
-
 
     .question { transition: transform 0.2s; }
     .question:hover { transform: translateY(-4px); }
@@ -74,7 +73,17 @@
       text-align: center; 
       flex-direction: column;
       justify-content: center;
-      min-height: 300px;
+      align-items: center;
+      width: 100%;
+      max-width: 400px;
+      margin: 1.5rem auto 0;
+    }
+
+    /* Sikrer at kakediagrammet holder seg stabilt i størrelsen */
+    .chart-box {
+      width: 250px;
+      height: 250px;
+      margin: 1rem auto;
     }
 
     label { display: block; margin: 0.6rem 0; line-height: 1.4; min-height: 48px; cursor: pointer; }
@@ -84,7 +93,7 @@
     button { padding: 0.75rem 1.5rem; font-size: 1rem; background: var(--primary); color: #fff; border: none; border-radius: 0.75rem; cursor: pointer; transition: background 0.2s; }
     button:hover { background: var(--primary-dark); }
     
-    #message { margin-top: 1rem; font-weight: 600; text-align: center; }
+    #Melding { margin-top: 1rem; font-weight: 600; text-align: center; color: var(--primary-dark); }
 
     @media (prefers-color-scheme: dark) {
       :root { --bg: #111827; --card: rgba(31, 41, 55, 0.8); --shadow: none; --primary-light: #1a3a2a; }
@@ -96,12 +105,14 @@
   <h1 id="category-title">Quiz</h1>
   
   <div id="quiz-wrapper">
-    <div id="quiz-container">
-      <div id="category-results">
-        <h3>Kategoriresultat</h3>
+    <div id="quiz-container"></div>
+    
+    <div id="category-results">
+      <h3>Kategoriresultat</h3>
+      <div class="chart-box">
         <canvas id="KategoriSektorDiagram"></canvas>
-        <p id="mastery-level" style="font-weight:bold; margin-top:10px;"></p>
       </div>
+      <p id="mastery-level" style="font-weight:bold; margin-top:10px;"></p>
     </div>
   </div>
 
@@ -118,9 +129,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const categories = ["number_system", "fractions", "percentages", "order_of_operations", "parenthesis", "coordinate_system", "exponents", "radicals", "expressions", "factorization", "logarithms", "functions"];
   const categoryNames = { "number_system": "tallsystemet", "fractions": "Brøk", "percentages": "Prosent", "order_of_operations": "Regnerekkefølge", "parenthesis": "Parenteser", "coordinate_system": "Koordinatsystemet", "exponents": "Potenser", "radicals": "Røtter", "expressions": "Forenkling", "factorization": "Faktorisering", "logarithms": "Logaritmer", "functions": "Funksjoner" };
 
-
-    const allQuestions = [
-    // ===================== number_system (number_system) =====================
+  const allQuestions = [
+    // ===================== number_system =====================
     {
       q: "Hvilket av følgende er et heltall?",
       options: ["$\\frac{3}{4}$", "$-3$", "$\\sqrt{2}$", "Ingen"],
@@ -204,7 +214,7 @@ document.addEventListener("DOMContentLoaded", function () {
       category: "percentages"
     },
     {
-      q: "Hvis vi Øker $100$ med $20\\%$ blir det.",
+      q: "Hvis vi øker $100$ med $20\\%$ blir det",
       options: ["$110$", "$130$", "$120$", "Ingen"],
       a: "$120$",
       category: "percentages"
@@ -524,27 +534,26 @@ document.addEventListener("DOMContentLoaded", function () {
   const container = document.getElementById("quiz-container");
   const resultsDiv = document.getElementById("category-results");
 
-  
   categoryQuestions.forEach((q, i) => {
-  const div = document.createElement("div");
-  div.classList.add("question");
+    const div = document.createElement("div");
+    div.classList.add("question");
 
-  div.innerHTML = `
-    <p class="question-text">
-      <strong>${i + 1}.</strong> ${q.q}
-    </p>
-    <div class="options-grid">
-      ${q.options.map(opt => `
-        <label class="option-label">
-          <input type="radio" name="q${i}" value="${opt}">
-          <span class="option-text">${opt}</span>
-        </label>
-      `).join("")}
-    </div>
-  `;
+    div.innerHTML = `
+      <p class="question-text">
+        <strong>${i + 1}.</strong> ${q.q}
+      </p>
+      <div class="options-grid">
+        ${q.options.map(opt => `
+          <label class="option-label">
+            <input type="radio" name="q${i}" value="${opt}">
+            <span class="option-text">${opt}</span>
+          </label>
+        `).join("")}
+      </div>
+    `;
 
-  container.insertBefore(div, resultsDiv);
-});
+    container.appendChild(div);
+  });
 
   if (window.renderMathInElement) {
     renderMathInElement(document.body, {
@@ -552,6 +561,7 @@ document.addEventListener("DOMContentLoaded", function () {
       throwOnError: false
     });
   }
+
   window.submitAnswers = () => {
     let score = 0;
 
@@ -592,7 +602,7 @@ document.addEventListener("DOMContentLoaded", function () {
       options: {
         responsive: true,
         maintainAspectRatio: true,
-        plugins: { legend: { display: false } }
+        plugins: { legend: { display: true } }
       }
     });
   }; 
