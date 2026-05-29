@@ -435,7 +435,7 @@ document.addEventListener("DOMContentLoaded", function () {
 { 
   q: "Factorize: $16x^2 - 9x$", 
   options: ["$(16x - 3)(x + 3)$", "$(4x - 3)(4x + 3)$", "$(4x - 9)^2$", "$(2x -3)(2x + 3)$"], 
-  a: "$(4x - 3)(4x + 3)$",, 
+  a: "$(4x - 3)(4x + 3)$", 
   category: "factorization" 
 },
 
@@ -510,7 +510,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 ];
 
-const urlParams = new URLSearchParams(window.location.search);
+  const urlParams = new URLSearchParams(window.location.search);
   const category = urlParams.get("category");
   let answersSubmitted = false;
   
@@ -553,20 +553,51 @@ const urlParams = new URLSearchParams(window.location.search);
     });
   }
 
+  window.submitAnswers = () => {
+  let score = 0;
+
   categoryQuestions.forEach((q, i) => {
-  const selected = document.querySelector(`input[name="q${i}"]:checked`);
-  const questionDiv = container.children[i];
+    const selected = document.querySelector(`input[name="q${i}"]:checked`);
+    const questionDiv = container.children[i];
 
-  questionDiv.classList.remove("correct-answer", "wrong-answer");
+    questionDiv.classList.remove("correct-answer", "wrong-answer");
 
-  if (selected && selected.value === q.a) {
-    score++;
-    questionDiv.classList.add("correct-answer");
-  } else {
-    questionDiv.classList.add("wrong-answer");
-  }
-});
+    if (selected && selected.value === q.a) {
+      score++;
+      questionDiv.classList.add("correct-answer");
+    } else {
+      questionDiv.classList.add("wrong-answer");
+    }
+  });
 
+  localStorage.setItem(category, score);
+  answersSubmitted = true;
+
+  document.getElementById("message").textContent = "Answers submitted! Navigation unlocked.";
+  resultsDiv.style.display = "flex";
+  document.getElementById("mastery-level").textContent =
+    getMasteryLevel(score, categoryQuestions.length);
+
+  const ctx = document.getElementById("categoryPie").getContext("2d");
+
+  if (window.categoryChart) window.categoryChart.destroy();
+
+  window.categoryChart = new Chart(ctx, {
+    type: "pie",
+    data: {
+      labels: ["Correct", "Incorrect"],
+      datasets: [{
+        data: [score, categoryQuestions.length - score],
+        backgroundColor: ["#2ecc71", "#e74c3c"]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: { legend: { display: false } }
+    }
+  });
+};
 
     localStorage.setItem(category, score);
     answersSubmitted = true;
