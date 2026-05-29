@@ -73,13 +73,10 @@
       text-align: center; 
       flex-direction: column;
       justify-content: center;
-      align-items: center;
-      width: 100%;
-      max-width: 400px;
-      margin: 1.5rem auto 0;
+      min-height: 300px;
     }
 
-    /* Sikrer at kakediagrammet holder seg stabilt i størrelsen */
+    /* Sikrer at sektordiagrammet holder seg stabilt i størrelsen */
     .chart-box {
       width: 250px;
       height: 250px;
@@ -106,13 +103,11 @@
   
   <div id="quiz-wrapper">
     <div id="quiz-container"></div>
-    
-    <div id="category-results">
-      <h3>Kategoriresultat</h3>
-      <div class="chart-box">
-        <canvas id="KategoriSektorDiagram"></canvas>
-      </div>
-      <p id="mastery-level" style="font-weight:bold; margin-top:10px;"></p>
+       <div id="category-results">
+          <h3>Kategoriresultat</h3>
+          <canvas id="KategoriSektorDiagram"></canvas>
+          <p id="mastery-level" style="font-weight:bold; margin-top:10px;"></p>
+         </div>
     </div>
   </div>
 
@@ -552,7 +547,7 @@ document.addEventListener("DOMContentLoaded", function () {
       </div>
     `;
 
-    container.appendChild(div);
+    container.insertBefore(div, resultsDiv);
   });
 
   if (window.renderMathInElement) {
