@@ -516,7 +516,7 @@ document.addEventListener("DOMContentLoaded", function () {
   
   const categoryQuestions = allQuestions.filter(q => q.category === category);
   
-  if (!category|| categoryQuestions.length === 0) {
+  if (!category || categoryQuestions.length === 0) {
     document.getElementById("quiz-container").innerHTML = "<p>Error: No category selected.</p>";
     return;
   }
