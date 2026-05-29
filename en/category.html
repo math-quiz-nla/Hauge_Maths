@@ -596,15 +596,7 @@ window.submitAnswers = () => {
         plugins: { legend: { display: false } }
       }
     });
-  }; // Beautifully closed once. Next function follows safely.
-
-  function getMasteryLevel(correct, total) {
-    const percent = (correct / total) * 100;
-    if (percent >= 85) return "Mastery level: Excellent ✅";
-    if (percent >= 70) return "Mastery level: Good 👍";
-    if (percent >= 50) return "Mastery level: Developing ⚠️";
-    return "Mastery level: Needs improvement ❌";
-  }
+  }; 
 
   function getMasteryLevel(correct, total) {
     const percent = (correct / total) * 100;
