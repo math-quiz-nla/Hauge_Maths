@@ -545,17 +545,32 @@ document.addEventListener("DOMContentLoaded", function () {
   }
   window.submitAnswers = () => {
     let score = 0;
+
     categoryQuestions.forEach((q, i) => {
       const selected = document.querySelector(`input[name="q${i}"]:checked`);
-      if (selected && selected.value === q.a) score++;
+      const questionDiv = container.children[i];
+
+      questionDiv.classList.remove("correct-answer", "wrong-answer");
+
+      if (selected && selected.value === q.a) {
+        score++;
+        questionDiv.classList.add("correct-answer");
+      } else {
+        questionDiv.classList.add("wrong-answer");
+      }
     });
+
     localStorage.setItem(category, score);
     answersSubmitted = true;
-    document.getElementById("message").textContent = "Svar sendt! Navigasjon låst opp.";
+
+    document.getElementById("Melding").textContent = "Svar sendt! Navigasjon låst opp!";
     resultsDiv.style.display = "flex";
-    document.getElementById("mastery-level").textContent = getMasteryLevel(score, categoryQuestions.length);
-    const ctx = document.getElementById("categoryPie").getContext("2d");
+    document.getElementById("Mestringsnivå").textContent = getMasteryLevel(score, categoryQuestions.length);
+
+    const ctx = document.getElementById("kategorySektordiagram").getContext("2d");
+
     if (window.categoryChart) window.categoryChart.destroy();
+
     window.categoryChart = new Chart(ctx, {
       type: "pie",
       data: {
@@ -571,7 +586,7 @@ document.addEventListener("DOMContentLoaded", function () {
         plugins: { legend: { display: false } }
       }
     });
-  };
+  }; 
 
   function getMasteryLevel(correct, total) {
     const percent = (correct / total) * 100;
