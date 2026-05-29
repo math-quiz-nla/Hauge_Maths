@@ -73,7 +73,15 @@
       text-align: center; 
       flex-direction: column;
       justify-content: center;
-      min-height: 300px;
+      align-items: center;
+      width: 100%;
+      max-width: 400px; /* Aligns neatly with the core presentation template */
+      margin: 1.5rem auto 0;
+      padding: 1.5rem;
+      border-radius: 1rem;
+      box-shadow: var(--shadow);
+      border: 2px solid var(--primary);
+      background: var(--card);
     }
 
     /* Sikrer at sektordiagrammet holder seg stabilt i størrelsen */
@@ -100,22 +108,24 @@
 </head>
 <body>
   <h1 id="category-title">Quiz</h1>
-  
-  <div id="quiz-wrapper">
-    <div id="quiz-container"></div>
-       <div id="category-results">
-          <h3>Kategoriresultat</h3>
-          <canvas id="KategoriSektorDiagram"></canvas>
-          <p id="mastery-level" style="font-weight:bold; margin-top:10px;"></p>
-         </div>
-    </div>
-  </div>
 
-  <div class="button-container">
-    <button id="prev-category-btn">Forrige kategori</button>
-    <button onclick="submitAnswers()">Send inn svar</button>
-    <button id="next-category-btn">Neste kategori</button>
+<div id="quiz-wrapper">
+  <div id="quiz-container"></div>
+  
+  <div id="category-results">
+    <h3>Kategoriresultat</h3>
+    <div class="chart-box">
+      <canvas id="KategoriSektorDiagram"></canvas>
+    </div>
+    <p id="mastery-level" style="font-weight:bold; margin-top:10px;"></p>
   </div>
+</div>
+
+<div class="button-container">
+  <button id="prev-category-btn">Forrige kategori</button>
+  <button onclick="submitAnswers()">Send inn svar</button>
+  <button id="next-category-btn">Neste kategori</button>
+</div>
   
   <p id="Melding"></p>
 
@@ -547,7 +557,7 @@ document.addEventListener("DOMContentLoaded", function () {
       </div>
     `;
 
-    container.insertBefore(div, resultsDiv);
+    container.appendChild(div);
   });
 
   if (window.renderMathInElement) {
