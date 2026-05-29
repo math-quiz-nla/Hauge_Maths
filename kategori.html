@@ -576,7 +576,7 @@ document.addEventListener("DOMContentLoaded", function () {
     resultsDiv.style.display = "flex";
     document.getElementById("mastery-level").textContent = getMasteryLevel(score, categoryQuestions.length);
 
-    const ctx = document.getElementById("categoryPie").getContext("2d");
+    const ctx = document.getElementById("KategoriSektorDiagram").getContext("2d");
 
     if (window.categoryChart) window.categoryChart.destroy();
 
