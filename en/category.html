@@ -56,7 +56,12 @@
       backdrop-filter: blur(5px);
       background: linear-gradient(to right bottom, rgba(255, 255, 255, 0.7), rgba(213, 245, 227, 0.8));
     }
-
+    .correct-answer {
+      background: rgba(46, 204, 113, 0.2);
+    }
+    .wrong-answer {
+      background: rgba(231, 76, 60, 0.2);
+    }
     .question { transition: transform 0.2s; }
     .question:hover { transform: translateY(-4px); }
     
@@ -548,12 +553,20 @@ const urlParams = new URLSearchParams(window.location.search);
     });
   }
 
-  window.submitAnswers = () => {
-    let score = 0;
-    categoryQuestions.forEach((q, i) => {
-      const selected = document.querySelector(`input[name="q${i}"]:checked`);
-      if (selected && selected.value === q.a) score++;
-    });
+  categoryQuestions.forEach((q, i) => {
+  const selected = document.querySelector(`input[name="q${i}"]:checked`);
+  const questionDiv = container.children[i];
+
+  questionDiv.classList.remove("correct-answer", "wrong-answer");
+
+  if (selected && selected.value === q.a) {
+    score++;
+    questionDiv.classList.add("correct-answer");
+  } else {
+    questionDiv.classList.add("wrong-answer");
+  }
+});
+
 
     localStorage.setItem(category, score);
     answersSubmitted = true;
