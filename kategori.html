@@ -574,9 +574,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.getElementById("Melding").textContent = "Svar sendt! Navigasjon låst opp!";
     resultsDiv.style.display = "flex";
-    document.getElementById("Mestringsnivå").textContent = getMasteryLevel(score, categoryQuestions.length);
+    document.getElementById("mastery-level").textContent = getMasteryLevel(score, categoryQuestions.length);
 
-    const ctx = document.getElementById("kategorySektordiagram").getContext("2d");
+    const ctx = document.getElementById("categoryPie").getContext("2d");
 
     if (window.categoryChart) window.categoryChart.destroy();
 
