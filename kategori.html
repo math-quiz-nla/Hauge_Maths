@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Test – Kategori</title>
+  <title>Test – Category</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
@@ -31,7 +31,7 @@
       min-height: 100vh;
     }
     h1 { margin-bottom: 1.5rem; text-align: center; }
-    #quiz-wrapper { width: 100%; max-width: 1200px; display: flex; flex-direction: column; gap: 1.5rem; }
+    #quiz-wrapper { width: 100%; max-width: 1200px; }
     
     #quiz-container { 
       display: grid; 
@@ -56,15 +56,12 @@
       backdrop-filter: blur(5px);
       background: linear-gradient(to right bottom, rgba(255, 255, 255, 0.7), rgba(213, 245, 227, 0.8));
     }
-
     .correct-answer {
       background: rgba(46, 204, 113, 0.2);
     }
-
     .wrong-answer {
       background: rgba(231, 76, 60, 0.2);
     }
-
     .question { transition: transform 0.2s; }
     .question:hover { transform: translateY(-4px); }
     
@@ -73,22 +70,7 @@
       text-align: center; 
       flex-direction: column;
       justify-content: center;
-      align-items: center;
-      width: 100%;
-      max-width: 400px; /* Aligns neatly with the core presentation template */
-      margin: 1.5rem auto 0;
-      padding: 1.5rem;
-      border-radius: 1rem;
-      box-shadow: var(--shadow);
-      border: 2px solid var(--primary);
-      background: var(--card);
-    }
-
-    /* Sikrer at sektordiagrammet holder seg stabilt i størrelsen */
-    .chart-box {
-      width: 250px;
-      height: 250px;
-      margin: 1rem auto;
+      min-height: 300px;
     }
 
     label { display: block; margin: 0.6rem 0; line-height: 1.4; min-height: 48px; cursor: pointer; }
@@ -98,7 +80,7 @@
     button { padding: 0.75rem 1.5rem; font-size: 1rem; background: var(--primary); color: #fff; border: none; border-radius: 0.75rem; cursor: pointer; transition: background 0.2s; }
     button:hover { background: var(--primary-dark); }
     
-    #Melding { margin-top: 1rem; font-weight: 600; text-align: center; color: var(--primary-dark); }
+    #message { margin-top: 1rem; font-weight: 600; text-align: center; }
 
     @media (prefers-color-scheme: dark) {
       :root { --bg: #111827; --card: rgba(31, 41, 55, 0.8); --shadow: none; --primary-light: #1a3a2a; }
@@ -108,26 +90,24 @@
 </head>
 <body>
   <h1 id="category-title">Quiz</h1>
-
-<div id="quiz-wrapper">
-  <div id="quiz-container"></div>
   
-  <div id="category-results">
-    <h3>Kategoriresultat</h3>
-    <div class="chart-box">
-      <canvas id="KategoriSektorDiagram"></canvas>
+  <div id="quiz-wrapper">
+    <div id="quiz-container">
+      <div id="category-results">
+        <h3>Kategoriresultat</h3>
+        <canvas id="kategoriSektordiagram"></canvas>
+        <p id="mastery-level" style="font-weight:bold; margin-top:10px;"></p>
+      </div>
     </div>
-    <p id="mastery-level" style="font-weight:bold; margin-top:10px;"></p>
   </div>
-</div>
 
-<div class="button-container">
-  <button id="prev-category-btn">Forrige kategori</button>
-  <button onclick="submitAnswers()">Send inn svar</button>
-  <button id="next-category-btn">Neste kategori</button>
-</div>
+  <div class="button-container">
+    <button id="prev-category-btn">Forrige kategori</button>
+    <button onclick="submitAnswers()">Send inn svar</button>
+    <button id="next-category-btn">Neste kategori</button>
+  </div>
   
-  <p id="Melding"></p>
+  <p id="melding"></p>
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
@@ -526,39 +506,40 @@ document.addEventListener("DOMContentLoaded", function () {
   ];
 
   const urlParams = new URLSearchParams(window.location.search);
-  const category = urlParams.get("category");
+  const category = urlParams.get("kategori");
   let answersSubmitted = false;
+  
   const categoryQuestions = allQuestions.filter(q => q.category === category);
   
   if (!category || categoryQuestions.length === 0) {
-    document.getElementById("quiz-container").innerHTML = "<p>Kategori ikke valgt.</p>";
+    document.getElementById("quiz-container").innerHTML = "<p>Feil: Kategori ikke valgt..</p>";
     return;
   }
-
-  document.getElementById("category-title").textContent = `Kategori: ${categoryNames[category] || category}`;
+  
+  document.getElementById("category-title").textContent =`Category: ${category.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}`;
   const container = document.getElementById("quiz-container");
   const resultsDiv = document.getElementById("category-results");
 
   categoryQuestions.forEach((q, i) => {
-    const div = document.createElement("div");
-    div.classList.add("question");
+  const div = document.createElement("div");
+  div.classList.add("question");
 
-    div.innerHTML = `
-      <p class="question-text">
-        <strong>${i + 1}.</strong> ${q.q}
-      </p>
-      <div class="options-grid">
-        ${q.options.map(opt => `
-          <label class="option-label">
-            <input type="radio" name="q${i}" value="${opt}">
-            <span class="option-text">${opt}</span>
-          </label>
-        `).join("")}
-      </div>
-    `;
+  div.innerHTML = `
+    <p class="question-text">
+      <strong>${i + 1}.</strong> ${q.q}
+    </p>
+    <div class="options-grid">
+      ${q.options.map(opt => `
+        <label class="option-label">
+          <input type="radio" name="q${i}" value="${opt}">
+          <span class="option-text">${opt}</span>
+        </label>
+      `).join("")}
+    </div>
+  `;
 
-    container.appendChild(div);
-  });
+  container.insertBefore(div, resultsDiv);
+});
 
   if (window.renderMathInElement) {
     renderMathInElement(document.body, {
@@ -567,7 +548,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  window.submitAnswers = () => {
+window.submitAnswers = () => {
     let score = 0;
 
     categoryQuestions.forEach((q, i) => {
@@ -587,11 +568,11 @@ document.addEventListener("DOMContentLoaded", function () {
     localStorage.setItem(category, score);
     answersSubmitted = true;
 
-    document.getElementById("Melding").textContent = "Svar sendt! Navigasjon låst opp!";
+    document.getElementById("message").textContent = "Svar sendt! Navigasjon låst opp!";
     resultsDiv.style.display = "flex";
     document.getElementById("mastery-level").textContent = getMasteryLevel(score, categoryQuestions.length);
 
-    const ctx = document.getElementById("KategoriSektorDiagram").getContext("2d");
+    const ctx = document.getElementById("kategoriSektordiagram").getContext("2d");
 
     if (window.categoryChart) window.categoryChart.destroy();
 
@@ -607,7 +588,7 @@ document.addEventListener("DOMContentLoaded", function () {
       options: {
         responsive: true,
         maintainAspectRatio: true,
-        plugins: { legend: { display: true } }
+        plugins: { legend: { display: false } }
       }
     });
   }; 
@@ -620,15 +601,23 @@ document.addEventListener("DOMContentLoaded", function () {
     return "Mestringsnivå: Trenger forbedring ❌";
   }
 
+
+  const nextBtn = document.getElementById("next-category-btn");
+  const prevBtn = document.getElementById("prev-category-btn");
   const currentIndex = categories.indexOf(category);
-  document.getElementById("prev-category-btn").onclick = () => {
-    if (!answersSubmitted) return alert("Vennligst trykk 'Send svar' først.");
-    if (currentIndex > 0) window.location.href = `kategori.html?category=${categories[currentIndex - 1]}`;
+
+  prevBtn.onclick = () => {
+    if (!answersSubmitted) { alert("Vennligst trykk 'Send svar Inn' først."); return; }
+    if (currentIndex > 0) window.location.href = `category.html?category=${categories[currentIndex - 1]}`;
   };
-  document.getElementById("next-category-btn").onclick = () => {
-    if (!answersSubmitted) return alert("Vennligst trykk 'Send svar' først.");
-    if (currentIndex < categories.length - 1) window.location.href = `kategori.html?category=${categories[currentIndex + 1]}`;
-    else window.location.href = "resultater.html";
+
+  nextBtn.onclick = () => {
+    if (!answersSubmitted) { alert("Vennligst trykk 'Send svar' først."); return; }
+    if (currentIndex < categories.length - 1) {
+      window.location.href = `category.html?category=${categories[currentIndex + 1]}`;
+    } else {
+      window.location.href = "resultater.html";
+    }
   };
 });
 </script>
