@@ -515,7 +515,12 @@ const urlParams = new URLSearchParams(window.location.search);
     return;
   }
   
-  document.getElementById("category-title").textContent = `Kategori: ${category.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}`;
+  function formatCategoryName(cat) {
+  const name = categoryNames[cat] || cat;
+  return name.replace(/_/g, " ")
+             .replace(/^./, c => c.toUpperCase());
+}
+  document.getElementById("category-title").textContent = `Kategori:{formatCategoryName(category)}`;
   const container = document.getElementById("quiz-container");
   const resultsDiv = document.getElementById("category-results");
 
