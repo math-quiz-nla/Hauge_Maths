@@ -553,61 +553,34 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  window.submitAnswers = () => {
-  let score = 0;
+window.submitAnswers = () => {
+    let score = 0;
 
-  categoryQuestions.forEach((q, i) => {
-    const selected = document.querySelector(`input[name="q${i}"]:checked`);
-    const questionDiv = container.children[i];
+    categoryQuestions.forEach((q, i) => {
+      const selected = document.querySelector(`input[name="q${i}"]:checked`);
+      const questionDiv = container.children[i];
 
-    questionDiv.classList.remove("correct-answer", "wrong-answer");
+      questionDiv.classList.remove("correct-answer", "wrong-answer");
 
-    if (selected && selected.value === q.a) {
-      score++;
-      questionDiv.classList.add("correct-answer");
-    } else {
-      questionDiv.classList.add("wrong-answer");
-    }
-  });
-
-  localStorage.setItem(category, score);
-  answersSubmitted = true;
-
-  document.getElementById("message").textContent = "Answers submitted! Navigation unlocked.";
-  resultsDiv.style.display = "flex";
-  document.getElementById("mastery-level").textContent =
-    getMasteryLevel(score, categoryQuestions.length);
-
-  const ctx = document.getElementById("categoryPie").getContext("2d");
-
-  if (window.categoryChart) window.categoryChart.destroy();
-
-  window.categoryChart = new Chart(ctx, {
-    type: "pie",
-    data: {
-      labels: ["Correct", "Incorrect"],
-      datasets: [{
-        data: [score, categoryQuestions.length - score],
-        backgroundColor: ["#2ecc71", "#e74c3c"]
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      plugins: { legend: { display: false } }
-    }
-  });
-};
+      if (selected && selected.value === q.a) {
+        score++;
+        questionDiv.classList.add("correct-answer");
+      } else {
+        questionDiv.classList.add("wrong-answer");
+      }
+    });
 
     localStorage.setItem(category, score);
     answersSubmitted = true;
+
     document.getElementById("message").textContent = "Answers submitted! Navigation unlocked.";
-    
     resultsDiv.style.display = "flex";
     document.getElementById("mastery-level").textContent = getMasteryLevel(score, categoryQuestions.length);
 
     const ctx = document.getElementById("categoryPie").getContext("2d");
+
     if (window.categoryChart) window.categoryChart.destroy();
+
     window.categoryChart = new Chart(ctx, {
       type: "pie",
       data: {
@@ -623,7 +596,15 @@ document.addEventListener("DOMContentLoaded", function () {
         plugins: { legend: { display: false } }
       }
     });
-  };
+  }; // Beautifully closed once. Next function follows safely.
+
+  function getMasteryLevel(correct, total) {
+    const percent = (correct / total) * 100;
+    if (percent >= 85) return "Mastery level: Excellent ✅";
+    if (percent >= 70) return "Mastery level: Good 👍";
+    if (percent >= 50) return "Mastery level: Developing ⚠️";
+    return "Mastery level: Needs improvement ❌";
+  }
 
   function getMasteryLevel(correct, total) {
     const percent = (correct / total) * 100;
